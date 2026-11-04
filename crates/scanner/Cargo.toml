@@ -1,0 +1,7 @@
+[package]
+name = "scanner"
+version.workspace = true
+edition.workspace = true
+description = "Clarity Disk C: volume scanner (M2)"
+
+[dependencies]

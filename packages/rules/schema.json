@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://clarity-disk.dev/schemas/rule.json",
+  "title": "ClarityDiskRule",
+  "type": "object",
+  "required": [
+    "id",
+    "pathGlob",
+    "displayName",
+    "ownerApp",
+    "purpose",
+    "risk",
+    "what",
+    "riskText",
+    "advice",
+    "evidence",
+    "confidence"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "pathGlob": { "type": "string", "description": "Windows path glob, case-insensitive" },
+    "displayName": { "type": "string" },
+    "ownerApp": { "type": "string" },
+    "purpose": { "type": "string" },
+    "risk": { "type": "string", "enum": ["safe", "confirm", "forbidden"] },
+    "what": { "type": "string" },
+    "riskText": { "type": "string" },
+    "advice": { "type": "string" },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+  },
+  "additionalProperties": false
+}

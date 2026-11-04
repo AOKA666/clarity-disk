@@ -1,0 +1,14 @@
+{
+  "name": "clarity-disk",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Clarity Disk — 解释式 C 盘空间助手",
+  "scripts": {
+    "dev": "pnpm --filter @clarity/desktop dev",
+    "tauri": "pnpm --filter @clarity/desktop tauri",
+    "build": "pnpm --filter @clarity/desktop build"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

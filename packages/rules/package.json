@@ -1,0 +1,11 @@
+{
+  "name": "@clarity/rules",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema.json": "./schema.json",
+    "./rules.seed.json": "./rules.seed.json"
+  }
+}

@@ -305,6 +305,60 @@
   font-size: 12px;
 }
 
+.bucket-block {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.bucket-block:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.bucket-block-system {
+  border-top-style: dashed;
+}
+
+.bucket-head {
+  margin: 0 8px 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bucket-note {
+  margin: 0 8px 8px;
+  font-size: 12px;
+}
+
+.bucket-user {
+  background: rgba(96, 165, 250, 0.12);
+  color: #93c5fd;
+}
+
+.bucket-slim {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--safe);
+}
+
+.bucket-system {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--forbidden);
+}
+
+.s-card.bucket-user {
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+.s-card.bucket-slim {
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.s-card.bucket-system {
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
 .row:hover {
   background: var(--bg-hover);
 }

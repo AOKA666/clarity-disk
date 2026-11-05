@@ -13,6 +13,7 @@ pub struct ClarityRule {
     pub owner_app: String,
     pub purpose: String,
     pub risk: String,
+    pub bucket: String,
     pub confidence: f64,
 }
 
@@ -118,11 +119,41 @@ mod tests {
         let raw = include_str!("../../../packages/rules/rules.seed.json");
         let rules: Vec<ClarityRule> = serde_json::from_str(raw).unwrap();
         let dl = rules.iter().find(|r| r.id == "downloads").unwrap();
+        assert_eq!(dl.bucket, "user");
         let pat = glob_to_regexp(&dl.path_glob);
         let re = Regex::new(&pat).unwrap();
         let p = normalize_windows_path(r"C:\Users\Alice\Downloads\setup.exe");
         assert!(re.is_match(&p), "pat={pat} path={p}");
         let m = match_rule_for_path(r"C:\Users\Alice\Downloads\setup.exe").expect("downloads rule");
         assert_eq!(m.id, "downloads");
+    }
+
+    #[test]
+    fn matches_jianyingpro() {
+        let m = match_rule_for_path(
+            r"C:\Users\Alice\AppData\Local\JianyingPro\User Data\test",
+        )
+        .expect("jianyingpro");
+        assert_eq!(m.id, "jianyingpro");
+        assert_eq!(m.bucket, "user");
+    }
+
+    #[test]
+    fn seed_has_m25_rule_count() {
+        let raw = include_str!("../../../packages/rules/rules.seed.json");
+        let rules: Vec<ClarityRule> = serde_json::from_str(raw).unwrap();
+        assert!(
+            rules.len() >= 50,
+            "M2.5 expects at least 50 seed rules, got {}",
+            rules.len()
+        );
+        assert!(rules.iter().any(|r| r.id == "windows-old"));
+        assert!(rules.iter().any(|r| r.id == "jianyingpro"));
+        assert!(
+            rules.len() >= 100,
+            "batch-2 expects at least 100 seed rules, got {}",
+            rules.len()
+        );
+        assert!(rules.iter().all(|r| !r.bucket.is_empty()));
     }
 }

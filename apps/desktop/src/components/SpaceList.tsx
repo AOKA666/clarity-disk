@@ -1,10 +1,11 @@
 import {
-  partitionSpaceItems,
+  bucketTier,
+  partitionByBucket,
   riskTier,
   type SpaceItem,
 } from "../data/homeModel";
 
-export type GroupMode = "app" | "purpose";
+export type GroupMode = "volume" | "app" | "purpose";
 
 interface SpaceListProps {
   mode: GroupMode;
@@ -24,17 +25,25 @@ function ItemRows({
   selectedId,
   onSelect,
   muted,
+  showRisk,
 }: {
   rows: SpaceItem[];
   mode: GroupMode;
   selectedId: string;
   onSelect: (item: SpaceItem) => void;
   muted?: boolean;
+  showRisk?: boolean;
 }) {
   return (
     <ul className={`rows${muted ? " rows-muted" : ""}`}>
       {rows.map((item) => {
-        const tier = item.isUnknown ? riskTier(undefined) : riskTier(item.risk);
+        const bucket = bucketTier(item.bucket);
+        const tier =
+          showRisk && item.risk
+            ? riskTier(item.risk)
+            : item.isUnknown
+              ? riskTier(undefined)
+              : bucket;
         return (
           <li key={rowKey(item, mode)}>
             <button
@@ -45,7 +54,9 @@ function ItemRows({
               onClick={() => onSelect(item)}
             >
               <span className="row-label">{item.label}</span>
-              <span className={`risk-pill row-risk ${tier.cls}`}>{tier.text}</span>
+              <span className={`risk-pill row-risk ${tier.cls}`}>
+                {showRisk && item.risk ? tier.text : bucket.text}
+              </span>
               <span className="row-meta">{item.purpose ?? "—"}</span>
               <span className="row-size">{item.sizeGb.toFixed(1)} GB</span>
             </button>
@@ -63,7 +74,8 @@ export function SpaceList({
   onSelect,
   onModeChange,
 }: SpaceListProps) {
-  const { primary, system } = partitionSpaceItems(items);
+  const { user, slim, system } = partitionByBucket(items);
+  const showRisk = mode !== "volume";
 
   return (
     <section className="panel space-list">
@@ -71,10 +83,17 @@ export function SpaceList({
         <div>
           <h2>谁占用了空间</h2>
           <p className="muted">
-            标签表示日后清理风险 · M2 只读，无删除按钮
+            顶目录归因合计≈C: 已用 · 三桶分清你的文件与可瘦身 · M2.5 只读
           </p>
         </div>
         <div className="segmented">
+          <button
+            type="button"
+            className={mode === "volume" ? "on" : ""}
+            onClick={() => onModeChange("volume")}
+          >
+            按顶目录
+          </button>
           <button
             type="button"
             className={mode === "app" ? "on" : ""}
@@ -95,17 +114,41 @@ export function SpaceList({
         <p className="muted empty-hint">等待 C: 扫描结果…</p>
       ) : (
         <>
-          <ItemRows
-            rows={primary}
-            mode={mode}
-            selectedId={selectedId}
-            onSelect={onSelect}
-          />
+          {user.length > 0 && (
+            <div className="bucket-block">
+              <h3 className="bucket-head">你的文件</h3>
+              <p className="muted bucket-note">
+                文档 / 桌面 / 下载 / 聊天等 · 仅识别，无清理入口
+              </p>
+              <ItemRows
+                rows={user}
+                mode={mode}
+                selectedId={selectedId}
+                onSelect={onSelect}
+                showRisk={showRisk}
+              />
+            </div>
+          )}
+          {slim.length > 0 && (
+            <div className="bucket-block">
+              <h3 className="bucket-head">可瘦身</h3>
+              <p className="muted bucket-note">
+                可重建缓存与安装残留 · 删除仍待 M4
+              </p>
+              <ItemRows
+                rows={slim}
+                mode={mode}
+                selectedId={selectedId}
+                onSelect={onSelect}
+                showRisk={showRisk}
+              />
+            </div>
+          )}
           {system.length > 0 && (
-            <div className="system-block">
-              <h3 className="system-head">系统相关 · 禁止直接清</h3>
-              <p className="muted system-note">
-                WinSxS / pagefile / hiberfil 等 · 仅解释与调查，M2 不提供删除
+            <div className="bucket-block bucket-block-system">
+              <h3 className="bucket-head">系统别动</h3>
+              <p className="muted bucket-note">
+                WinSxS / pagefile / 无权限差额等 · 禁止一键清
               </p>
               <ItemRows
                 rows={system}
@@ -113,6 +156,7 @@ export function SpaceList({
                 selectedId={selectedId}
                 onSelect={onSelect}
                 muted
+                showRisk={showRisk}
               />
             </div>
           )}

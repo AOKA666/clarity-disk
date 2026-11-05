@@ -16,9 +16,9 @@ export function CapacityRing({ summary, scanning, scanLabel }: CapacityRingProps
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - usedPct / 100);
   const hasBreakdown =
+    summary.attributedGb != null &&
     summary.matchedGb != null &&
-    summary.unknownGb != null &&
-    summary.unexplainedGb != null;
+    summary.permissionGapGb != null;
 
   return (
     <section className="hero">
@@ -36,27 +36,38 @@ export function CapacityRing({ summary, scanning, scanLabel }: CapacityRingProps
         {hasBreakdown && !scanning && (
           <ul className="hero-breakdown muted">
             <li>
-              规则命中合计{" "}
-              <strong>{summary.matchedGb!.toFixed(1)} GB</strong>
+              顶目录已归因{" "}
+              <strong>{summary.attributedGb!.toFixed(1)} GB</strong>
               <span className="breakdown-hint">
-                · 下方列表为命中项聚合，非整盘明细
+                {" "}
+                ≈ C: 已用 {summary.usedGb.toFixed(1)} GB
               </span>
             </li>
             <li>
-              尚未识别{" "}
-              <strong>{summary.unknownGb!.toFixed(1)} GB</strong>
-              {summary.unexplainedGb! >= 0.05 && (
+              规则命中{" "}
+              <strong>{summary.matchedGb!.toFixed(1)} GB</strong>
+              {summary.unknownGb != null && summary.unknownGb >= 0.05 && (
                 <>
                   {" "}
-                  · 其他差额{" "}
-                  <strong>{summary.unexplainedGb!.toFixed(1)} GB</strong>
+                  · 尚未识别{" "}
+                  <strong>{summary.unknownGb.toFixed(1)} GB</strong>
                 </>
               )}
             </li>
+            {summary.permissionGapGb! >= 0.05 && (
+              <li>
+                无权限 / 未遍历差额{" "}
+                <strong>{summary.permissionGapGb!.toFixed(1)} GB</strong>
+                <span className="breakdown-hint">
+                  {" "}
+                  · 见「系统别动」或顶目录最后一行
+                </span>
+              </li>
+            )}
             <li>
-              预计可整理{" "}
-              <strong>{summary.reclaimableGb.toFixed(1)} GB</strong>（safe
-              规则合计）
+              可瘦身（safe 等）约{" "}
+              <strong>{summary.reclaimableGb.toFixed(1)} GB</strong>
+              <span className="breakdown-hint"> · M4 才进回收站</span>
             </li>
           </ul>
         )}

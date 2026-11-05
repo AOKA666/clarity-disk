@@ -10,7 +10,7 @@
 | `crates/scanner` | Rust C: 只读扫描（Windows 真机；非 Windows 为 stub） |
 | `packages/rules` | 规则 JSON Schema、种子规则、`matchRuleForPath` 等匹配辅助 |
 
-## 快速开始（Windows 验收 M2）
+## 快速开始（Windows 验收 M2.5）
 
 ```bash
 pnpm install
@@ -19,14 +19,20 @@ pnpm tauri dev
 
 应用启动后会**自动开始只读扫描 C:**；也可点击右上角 **「重新扫描 C:」**。扫描过程中顶部有进度条与文件计数。
 
-> **M2 需要 Windows 10/11 真机** 才能验证 C: 扫描。Linux/macOS 上 `crates/scanner` 可 `cargo check -p scanner`，但 Tauri 桌面需本机 GUI 环境。
+> **需要 Windows 10/11 真机** 才能验证 C: 扫描。Linux/macOS 上 `cargo test -p scanner`，但 Tauri 桌面需本机 GUI 环境。
 
-## M2 范围（当前）
+## M2.5 范围（当前）
 
-- `crates/scanner`：遍历 C: 卷内文件（只读），进度事件（字节 / 路径数 / 近似百分比），无权限目录写入 `skipped`
-- 与 `packages/rules` 约 20 条种子规则匹配；未命中归入 **「尚未识别」**
-- 按 `ownerApp` / `purpose` 聚合体积，驱动首页「谁占用了空间」
+- **顶目录归因**：`Users` / `Windows` / `Program Files` 等汇总，列表合计接近 C: 已用；差额在 Hero 与「无权限 / 未遍历」行说明
+- **三桶 UI**：你的文件（仅识别）· 可瘦身 · 系统别动
+- **规则库 ≥50 条**（含 `windows.old`、常见缓存与用户目录识别）；每条含 `bucket` 字段
 - **无任何删除或回收站路径**（清理为 M4）
+
+## M2 基础（已包含）
+
+- `crates/scanner`：遍历 C: 卷内文件（只读），进度事件，无权限目录写入 `skipped`
+- 与 `packages/rules` 匹配；未命中归入 **「尚未识别」**
+- 按顶目录 / `ownerApp` / `purpose` 聚合体积
 
 ## 安全原则
 
@@ -38,7 +44,8 @@ pnpm tauri dev
 ## 里程碑
 
 - **M1** · 脚手架 + 假数据首页
-- **M2** · 真实 C: 只读扫描 + UI 接真数据（本里程碑）
+- **M2** · 真实 C: 只读扫描 + UI 接真数据
+- **M2.5** · 顶目录归因 + 三桶 + 规则 ≥50（本里程碑）
 - **M3** · 规则 ≥100 + 解释卡深化
 - **M4** · 安全清理 + Windows 真机验收
 

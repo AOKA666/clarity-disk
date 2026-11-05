@@ -1,5 +1,5 @@
 import { getRuleById } from "@clarity/rules";
-import type { ExplanationView } from "../data/homeModel";
+import { bucketTier, type ExplanationView } from "../data/homeModel";
 
 interface ExplanationPanelProps {
   view: ExplanationView;
@@ -18,7 +18,7 @@ export function ExplanationPanel({ view }: ExplanationPanelProps) {
         <header>
           <p className="eyebrow">
             {view.eyebrow ??
-              (view.title === "其他占用"
+              (view.title === "无权限 / 未遍历" || view.title === "其他占用"
                 ? "解释卡 · 空间差额"
                 : "解释卡 · 尚未识别")}
           </p>
@@ -26,18 +26,22 @@ export function ExplanationPanel({ view }: ExplanationPanelProps) {
           <code className="path">{view.path}</code>
         </header>
         <div className="qa">
-          {view.title === "其他占用" ? (
+          {view.title === "无权限 / 未遍历" ||
+          view.title === "其他占用" ? (
             <>
               <Question
-                q="为什么列表合计远小于 C: 已用？"
-                a="列表只统计命中约 20 条规则的文件；其余已用空间在「尚未识别」或「其他占用」中体现。"
+                q="为什么需要「顶目录归因」？"
+                a="M2.5 按 C:\\ 下 Users/Windows/Program Files 等汇总，可读文件合计应接近 C: 已用；与本列表三桶互补。"
               />
               <Question
-                q="其他占用是什么？"
-                a="盘已用空间减去规则命中与尚未识别后的差额，含未扫描目录、权限跳过、统计误差等。"
+                q="差额是什么？"
+                a="盘已用减去本次 walk 统计到的文件字节，主要为无权限跳过目录内的体积、文件系统元数据等。"
               />
-              <Question q="删掉会怎样？" a="M2 不提供删除；需先弄清目录来源再手动处理。" />
-              <Question q="建议怎么做？" a="查看下方调查线索；等待规则库扩展或配合资源管理器排查大目录。" />
+              <Question q="删掉会怎样？" a="M2.5 不提供删除；需先弄清目录来源。" />
+              <Question
+                q="建议怎么做？"
+                a="查看下方线索；以管理员打开资源管理器或等待后续版本细化规则。"
+              />
             </>
           ) : (
             <>
@@ -77,6 +81,7 @@ export function ExplanationPanel({ view }: ExplanationPanelProps) {
   }
 
   const risk = riskLabel(r.risk);
+  const bucket = bucketTier(r.bucket);
 
   return (
     <aside className="explain">
@@ -85,6 +90,7 @@ export function ExplanationPanel({ view }: ExplanationPanelProps) {
         <h2>{view.title || r.displayName}</h2>
         <code className="path">{view.path}</code>
         <div className="meta-row">
+          <span className={`risk-pill ${bucket.cls}`}>{bucket.text}</span>
           <span className={`risk-pill ${risk.cls}`}>{risk.text}</span>
           <span className="muted">
             可信度 {(r.confidence * 100).toFixed(0)}% · {r.ownerApp}
@@ -105,16 +111,19 @@ export function ExplanationPanel({ view }: ExplanationPanelProps) {
           ))}
         </ul>
       </div>
-      {r.risk === "safe" && (
+      {r.bucket === "user" && (
+        <p className="no-delete">你的文件 · 仅识别占用 · 不提供清理</p>
+      )}
+      {r.bucket === "slim" && r.risk === "safe" && (
         <button type="button" className="ghost-btn" disabled title="M4 启用">
           预览后进回收站（M4）
         </button>
       )}
-      {r.risk === "confirm" && (
-        <p className="no-delete">需逐项确认 · M2 不执行删除</p>
+      {r.bucket === "slim" && r.risk === "confirm" && (
+        <p className="no-delete">可瘦身 · 需确认 · M2.5 不执行删除</p>
       )}
-      {r.risk === "forbidden" && (
-        <p className="no-delete">禁止一键清理 · 请按建议使用系统工具</p>
+      {r.bucket === "system" && (
+        <p className="no-delete">系统别动 · 请按建议使用系统工具</p>
       )}
     </aside>
   );

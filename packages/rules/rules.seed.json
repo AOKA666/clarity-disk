@@ -1,5 +1,117 @@
 [
   {
+    "id": "adobe-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Adobe\\\\Common\\\\Media Cache Files\\\\**",
+    "displayName": "Adobe 媒体缓存",
+    "ownerApp": "Adobe",
+    "purpose": "Premiere/AE 媒体缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Adobe 视频编辑媒体缓存文件。",
+    "riskText": "删除后项目需重新生成预览。",
+    "advice": "在 Adobe 偏好设置中清理媒体缓存。",
+    "evidence": [
+      "Media Cache Files"
+    ],
+    "confidence": 0.86
+  },
+  {
+    "id": "amd-shader-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\AMD\\\\DxCache\\\\**",
+    "displayName": "AMD 着色器缓存",
+    "ownerApp": "AMD",
+    "purpose": "GPU 着色器缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "AMD 驱动 DxCache。",
+    "riskText": "删除后游戏可能短暂卡顿。",
+    "advice": "可安全清理。",
+    "evidence": [
+      "AMD\\\\DxCache"
+    ],
+    "confidence": 0.83
+  },
+  {
+    "id": "android-studio-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\.temp\\\\**",
+    "displayName": "Android SDK 临时",
+    "ownerApp": "Android Studio",
+    "purpose": "SDK 下载临时",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "SDK Manager 下载中间文件。",
+    "riskText": "可安全删除 .temp。",
+    "advice": "关闭 Android Studio 后清理 .temp。",
+    "evidence": [
+      "Android\\\\Sdk\\\\.temp"
+    ],
+    "confidence": 0.85
+  },
+  {
+    "id": "baidu-netdisk",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\baidu\\\\BaiduNetdisk\\\\**",
+    "displayName": "百度网盘缓存",
+    "ownerApp": "百度网盘",
+    "purpose": "下载与预览缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "网盘客户端缓存（非同步个人文件夹）。",
+    "riskText": "清理缓存不影响云端，但需重新下载离线文件。",
+    "advice": "网盘设置 → 清理缓存。",
+    "evidence": [
+      "BaiduNetdisk"
+    ],
+    "confidence": 0.81
+  },
+  {
+    "id": "battlenet-cache",
+    "pathGlob": "C:\\\\ProgramData\\\\Battle.net\\\\Agent\\\\cache\\\\**",
+    "displayName": "Battle.net Agent 缓存",
+    "ownerApp": "Battle.net",
+    "purpose": "更新 Agent 缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "暴雪战网 Agent 下载缓存。",
+    "riskText": "可安全清理，会重新拉取更新元数据。",
+    "advice": "退出战网后清理 cache。",
+    "evidence": [
+      "Battle.net\\\\Agent\\\\cache"
+    ],
+    "confidence": 0.84
+  },
+  {
+    "id": "cargo-registry-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\.cargo\\\\registry\\\\**",
+    "displayName": "Cargo registry 缓存",
+    "ownerApp": "Rust/Cargo",
+    "purpose": "crate 下载缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Cargo 下载的 crate 源码与二进制缓存。",
+    "riskText": "删除后 cargo build 会重新下载依赖。",
+    "advice": "cargo cache -a 或手动 prune",
+    "evidence": [
+      ".cargo\\\\registry"
+    ],
+    "confidence": 0.85
+  },
+  {
+    "id": "chocolatey-lib",
+    "pathGlob": "C:\\\\ProgramData\\\\chocolatey\\\\lib\\\\**",
+    "displayName": "Chocolatey 安装包",
+    "ownerApp": "Chocolatey",
+    "purpose": "已安装包文件",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Chocolatey lib 中保留的安装包副本。",
+    "riskText": "不应手动删整个 lib；仅清理 nupkg 备份需用 choco 命令。",
+    "advice": "choco uninstall 不需要的包。",
+    "evidence": [
+      "chocolatey\\\\lib"
+    ],
+    "confidence": 0.75
+  },
+  {
     "id": "chrome-cache",
     "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Google\\\\Chrome\\\\User Data\\\\*\\\\Cache\\\\**",
     "displayName": "Chrome 浏览器缓存",
@@ -9,99 +121,76 @@
     "what": "Chrome 为加速访问保存的临时网页、图片与脚本文件。",
     "riskText": "删除后首次打开网站可能稍慢，登录状态与书签不受影响。",
     "advice": "可在 Chrome 设置中清理，或使用本工具预览后进回收站。",
-    "evidence": ["路径含 Google\\\\Chrome\\\\User Data", "目录名 Cache"],
-    "confidence": 0.92
+    "evidence": [
+      "路径含 Google\\\\Chrome\\\\User Data",
+      "目录名 Cache"
+    ],
+    "confidence": 0.92,
+    "bucket": "slim"
   },
   {
-    "id": "edge-cache",
-    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\Edge\\\\User Data\\\\*\\\\Cache\\\\**",
-    "displayName": "Edge 浏览器缓存",
-    "ownerApp": "Microsoft Edge",
-    "purpose": "网页与资源缓存",
+    "id": "crashdumps",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\CrashDumps\\\\**",
+    "displayName": "用户态崩溃转储",
+    "ownerApp": "Windows 错误报告",
+    "purpose": "应用崩溃 dump",
     "risk": "safe",
-    "what": "Edge 的网页缓存目录，与 Chrome 类似。",
-    "riskText": "清理后需重新下载部分资源，不会删除密码或收藏。",
-    "advice": "优先用 Edge 内置清理；大量占用时可安全进回收站。",
-    "evidence": ["Microsoft\\\\Edge\\\\User Data", "Cache 子目录"],
-    "confidence": 0.91
-  },
-  {
-    "id": "wechat-files",
-    "pathGlob": "C:\\\\Users\\\\*\\\\Documents\\\\WeChat Files\\\\**",
-    "displayName": "微信本地数据",
-    "ownerApp": "微信",
-    "purpose": "聊天记录、图片与文件缓存",
-    "risk": "confirm",
-    "what": "微信 PC 版保存的聊天媒体、文件与数据库。",
-    "riskText": "删除可能导致聊天记录、接收文件丢失，无法从云端完整恢复。",
-    "advice": "在微信内清理指定聊天文件；不要整目录删除。",
-    "evidence": ["Documents\\\\WeChat Files", "体积通常较大"],
+    "bucket": "slim",
+    "what": "各应用生成的 .dmp 崩溃文件。",
+    "riskText": "一般可删，仅调试时需要。",
+    "advice": "确认无正在调查的问题后清理。",
+    "evidence": [
+      "CrashDumps"
+    ],
     "confidence": 0.88
   },
   {
-    "id": "qq-tencent-files",
-    "pathGlob": "C:\\\\Users\\\\*\\\\Documents\\\\Tencent Files\\\\**",
-    "displayName": "QQ / TIM 本地数据",
-    "ownerApp": "QQ",
-    "purpose": "聊天与下载缓存",
+    "id": "delivery-optimization",
+    "pathGlob": "C:\\\\Windows\\\\SoftwareDistribution\\\\DeliveryOptimization\\\\**",
+    "displayName": "传递优化缓存",
+    "ownerApp": "Windows Update",
+    "purpose": "P2P 更新缓存",
     "risk": "confirm",
-    "what": "QQ 账号相关的消息、图片与接收文件。",
-    "riskText": "误删会丢失本地聊天记录与未备份文件。",
-    "advice": "在 QQ 设置里按账号清理缓存，保留重要下载。",
-    "evidence": ["Tencent Files 目录结构"],
+    "bucket": "slim",
+    "what": "Windows 更新传递优化下载缓存。",
+    "riskText": "删除后可能需重新下载更新组件。",
+    "advice": "设置 → 系统 → 传递优化 → 清除缓存。",
+    "evidence": [
+      "DeliveryOptimization"
+    ],
+    "confidence": 0.81
+  },
+  {
+    "id": "discord-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\discord\\\\Cache\\\\**",
+    "displayName": "Discord 缓存",
+    "ownerApp": "Discord",
+    "purpose": "客户端 UI 缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "Discord Electron 缓存。",
+    "riskText": "可重建，登录状态通常保留。",
+    "advice": "退出 Discord 后清理 Cache。",
+    "evidence": [
+      "discord\\\\Cache"
+    ],
     "confidence": 0.85
   },
   {
-    "id": "steam-downloads",
-    "pathGlob": "C:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\downloading\\\\**",
-    "displayName": "Steam 下载临时文件",
-    "ownerApp": "Steam",
-    "purpose": "游戏下载中间状态",
-    "risk": "safe",
-    "what": "正在下载或暂停的游戏分片数据。",
-    "riskText": "删除后需重新下载对应游戏，已安装游戏不受影响。",
-    "advice": "在 Steam 库中取消未完成下载后再清理此目录。",
-    "evidence": ["steamapps\\\\downloading"],
-    "confidence": 0.9
-  },
-  {
-    "id": "steam-shadercache",
-    "pathGlob": "C:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\shadercache\\\\**",
-    "displayName": "Steam 着色器缓存",
-    "ownerApp": "Steam",
-    "purpose": "GPU 着色器预编译缓存",
-    "risk": "safe",
-    "what": "为减少卡顿预编译的着色器文件。",
-    "riskText": "删除后首次启动游戏可能重新编译，出现短暂卡顿。",
-    "advice": "可安全清理；游戏会自动重建缓存。",
-    "evidence": ["shadercache 目录"],
-    "confidence": 0.87
-  },
-  {
-    "id": "user-temp",
-    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Temp\\\\**",
-    "displayName": "用户 Temp 临时文件",
-    "ownerApp": "各应用",
-    "purpose": "安装与运行时的短期临时文件",
-    "risk": "safe",
-    "what": "程序运行时创建的临时文件，多数已不再使用。",
-    "riskText": "正在运行的程序若仍占用个别文件，可能跳过无法删除。",
-    "advice": "关闭大型软件后清理；本工具仅进回收站。",
-    "evidence": ["AppData\\\\Local\\\\Temp", "修改时间较旧"],
-    "confidence": 0.86
-  },
-  {
-    "id": "windows-temp",
-    "pathGlob": "C:\\\\Windows\\\\Temp\\\\**",
-    "displayName": "Windows Temp",
-    "ownerApp": "Windows",
-    "purpose": "系统级临时文件",
-    "risk": "safe",
-    "what": "系统与安装程序使用的临时目录。",
-    "riskText": "部分文件可能被系统锁定；清理失败项可忽略。可安全纳入磁盘清理/Temp 清理。",
-    "advice": "使用磁盘清理或本工具预览后回收站删除。",
-    "evidence": ["C:\\\\Windows\\\\Temp"],
-    "confidence": 0.84
+    "id": "docker-data",
+    "pathGlob": "C:\\\\ProgramData\\\\Docker\\\\**",
+    "displayName": "Docker Desktop 数据",
+    "ownerApp": "Docker Desktop",
+    "purpose": "镜像与容器层",
+    "risk": "confirm",
+    "what": "Docker 镜像、容器与卷的本地存储。",
+    "riskText": "删除会导致所有本地容器与未推送镜像丢失。",
+    "advice": "在 Docker Desktop 中 prune images/volumes。",
+    "evidence": [
+      "ProgramData\\\\Docker"
+    ],
+    "confidence": 0.86,
+    "bucket": "slim"
   },
   {
     "id": "downloads",
@@ -113,8 +202,224 @@
     "what": "用户下载的安装包、文档与媒体。",
     "riskText": "可能包含未安装的安装包或重要资料，删除不可恢复（回收站除外）。",
     "advice": "按日期排序，只删确认不需要的大文件。",
-    "evidence": ["Downloads 路径", "常见 .exe .zip"],
-    "confidence": 0.95
+    "evidence": [
+      "Downloads 路径",
+      "常见 .exe .zip"
+    ],
+    "confidence": 0.95,
+    "bucket": "user"
+  },
+  {
+    "id": "edge-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\Edge\\\\User Data\\\\*\\\\Cache\\\\**",
+    "displayName": "Edge 浏览器缓存",
+    "ownerApp": "Microsoft Edge",
+    "purpose": "网页与资源缓存",
+    "risk": "safe",
+    "what": "Edge 的网页缓存目录，与 Chrome 类似。",
+    "riskText": "清理后需重新下载部分资源，不会删除密码或收藏。",
+    "advice": "优先用 Edge 内置清理；大量占用时可安全进回收站。",
+    "evidence": [
+      "Microsoft\\\\Edge\\\\User Data",
+      "Cache 子目录"
+    ],
+    "confidence": 0.91,
+    "bucket": "slim"
+  },
+  {
+    "id": "epic-games-cache",
+    "pathGlob": "C:\\\\Program Files\\\\Epic Games\\\\Launcher\\\\Portal\\\\Saved\\\\webcache\\\\**",
+    "displayName": "Epic 启动器 web 缓存",
+    "ownerApp": "Epic Games",
+    "purpose": "启动器 UI 缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "Epic Games Launcher 的 webcache。",
+    "riskText": "可重建，启动器略慢一次。",
+    "advice": "关闭 Epic 后删除 webcache。",
+    "evidence": [
+      "Epic Games\\\\Launcher",
+      "webcache"
+    ],
+    "confidence": 0.83
+  },
+  {
+    "id": "firefox-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Mozilla\\\\Firefox\\\\Profiles\\\\*\\\\cache2\\\\**",
+    "displayName": "Firefox 浏览器缓存",
+    "ownerApp": "Mozilla Firefox",
+    "purpose": "网页缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "Firefox 的 disk cache。",
+    "riskText": "清理后网站资源需重新下载，书签与密码不受影响。",
+    "advice": "Firefox 设置 → 隐私 → 清除数据，或本工具 M4 预览后进回收站。",
+    "evidence": [
+      "Firefox\\\\Profiles",
+      "cache2"
+    ],
+    "confidence": 0.9
+  },
+  {
+    "id": "go-build-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\go-build\\\\**",
+    "displayName": "Go 构建缓存",
+    "ownerApp": "Go toolchain",
+    "purpose": "编译缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "go build 产生的 build cache。",
+    "riskText": "可 go clean -cache 重建。",
+    "advice": "go clean -cache",
+    "evidence": [
+      "go-build"
+    ],
+    "confidence": 0.86
+  },
+  {
+    "id": "google-drive-sync",
+    "pathGlob": "C:\\\\Users\\\\*\\\\Google Drive\\\\**",
+    "displayName": "Google Drive 同步目录",
+    "ownerApp": "Google Drive",
+    "purpose": "云盘本地副本",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "Google 云端硬盘本地镜像。",
+    "riskText": "个人文件，删除本地副本需重新同步。",
+    "advice": "仅识别占用。",
+    "evidence": [
+      "Google Drive"
+    ],
+    "confidence": 0.91
+  },
+  {
+    "id": "gradle-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\.gradle\\\\caches\\\\**",
+    "displayName": "Gradle 依赖缓存",
+    "ownerApp": "Gradle",
+    "purpose": "构建依赖缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "Gradle 下载的依赖与 transform 缓存。",
+    "riskText": "删除后下次构建会重新下载。",
+    "advice": "gradle clean 或删除 .gradle\\\\caches。",
+    "evidence": [
+      ".gradle\\\\caches"
+    ],
+    "confidence": 0.89
+  },
+  {
+    "id": "hiberfil",
+    "pathGlob": "C:\\\\hiberfil.sys",
+    "displayName": "休眠文件 hiberfil.sys",
+    "ownerApp": "Windows",
+    "purpose": "休眠状态保存",
+    "risk": "forbidden",
+    "what": "休眠功能的内存镜像文件。",
+    "riskText": "删除需关闭休眠功能（powercfg），不应作为「垃圾」一键清。",
+    "advice": "管理员运行 powercfg /hibernate off 若确实不需要休眠。",
+    "evidence": [
+      "hiberfil.sys"
+    ],
+    "confidence": 0.97,
+    "bucket": "system"
+  },
+  {
+    "id": "inet-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\Windows\\\\INetCache\\\\**",
+    "displayName": "Internet 临时文件",
+    "ownerApp": "Windows / IE 组件",
+    "purpose": "WebView 与旧 IE 缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "INetCache 中的临时 Internet 文件。",
+    "riskText": "可安全清理。",
+    "advice": "磁盘清理或手动删除 INetCache 内容。",
+    "evidence": [
+      "INetCache"
+    ],
+    "confidence": 0.87
+  },
+  {
+    "id": "itunes-backup",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Apple Computer\\\\MobileSync\\\\Backup\\\\**",
+    "displayName": "iTunes/iPhone 本地备份",
+    "ownerApp": "Apple Devices",
+    "purpose": "iOS 设备备份",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "iPhone/iPad 完整本地备份。",
+    "riskText": "删除后无法从该备份恢复设备。",
+    "advice": "仅识别；在 Apple 设备应用中管理备份。",
+    "evidence": [
+      "MobileSync\\\\Backup"
+    ],
+    "confidence": 0.92
+  },
+  {
+    "id": "jetbrains-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\JetBrains\\\\*\\\\caches\\\\**",
+    "displayName": "JetBrains IDE 缓存",
+    "ownerApp": "JetBrains",
+    "purpose": "索引与编译缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "IDEA/WebStorm 等本地 caches 目录。",
+    "riskText": "删除后首次打开项目会重建索引，略慢。",
+    "advice": "关闭 IDE 后删除 caches；勿删整个 config。",
+    "evidence": [
+      "JetBrains",
+      "caches"
+    ],
+    "confidence": 0.88
+  },
+  {
+    "id": "lol-game-cache",
+    "pathGlob": "C:\\\\Riot Games\\\\**",
+    "displayName": "Riot 游戏客户端",
+    "ownerApp": "Riot Games",
+    "purpose": "游戏与补丁",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "英雄联盟等 Riot 游戏安装与补丁缓存。",
+    "riskText": "删错目录需重新下载游戏。",
+    "advice": "用游戏内置修复/卸载，勿整目录删。",
+    "evidence": [
+      "Riot Games"
+    ],
+    "confidence": 0.79
+  },
+  {
+    "id": "minidump",
+    "pathGlob": "C:\\\\Windows\\\\Minidump\\\\**",
+    "displayName": "系统 Minidump",
+    "ownerApp": "Windows",
+    "purpose": "蓝屏小型转储",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "C:\\\\Windows\\\\Minidump 下的 dump 文件。",
+    "riskText": "删后无法分析历史蓝屏，但不影响系统运行。",
+    "advice": "排查完稳定性后可删。",
+    "evidence": [
+      "Windows\\\\Minidump"
+    ],
+    "confidence": 0.84
+  },
+  {
+    "id": "netease-cloud-music",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\NetEase\\\\CloudMusic\\\\**",
+    "displayName": "网易云音乐缓存",
+    "ownerApp": "网易云音乐",
+    "purpose": "音频缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "在线歌曲本地缓存。",
+    "riskText": "删后需重新缓存歌曲。",
+    "advice": "客户端设置清理缓存。",
+    "evidence": [
+      "NetEase\\\\CloudMusic"
+    ],
+    "confidence": 0.84
   },
   {
     "id": "node-modules",
@@ -126,8 +431,12 @@
     "what": "npm/pnpm/yarn 安装的第三方库副本。",
     "riskText": "删除后项目需重新 npm install 才能运行。",
     "advice": "确认项目可重建后再删；优先删不再使用的旧项目目录。",
-    "evidence": ["node_modules 目录名", "含 package.json 父目录"],
-    "confidence": 0.93
+    "evidence": [
+      "node_modules 目录名",
+      "含 package.json 父目录"
+    ],
+    "confidence": 0.93,
+    "bucket": "slim"
   },
   {
     "id": "npm-cache",
@@ -139,7 +448,122 @@
     "what": "npm 下载 tarball 的本地缓存，可重建。",
     "riskText": "删除后下次安装会重新下载，略慢但无功能损失。",
     "advice": "运行 npm cache clean --force 或本工具回收站清理。",
-    "evidence": ["npm-cache 路径"],
+    "evidence": [
+      "npm-cache 路径"
+    ],
+    "confidence": 0.9,
+    "bucket": "slim"
+  },
+  {
+    "id": "nuget-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\.nuget\\\\packages\\\\**",
+    "displayName": "NuGet 全局包缓存",
+    "ownerApp": "NuGet",
+    "purpose": ".NET 包缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "全局 packages 文件夹中的 NuGet 包。",
+    "riskText": "删除后项目 restore 会重新下载。",
+    "advice": "dotnet nuget locals all --clear",
+    "evidence": [
+      ".nuget\\\\packages"
+    ],
+    "confidence": 0.87
+  },
+  {
+    "id": "nvidia-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\NVIDIA\\\\DXCache\\\\**",
+    "displayName": "NVIDIA DX 缓存",
+    "ownerApp": "NVIDIA",
+    "purpose": "DirectX 着色器缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "NVIDIA 驱动 DXCache。",
+    "riskText": "游戏首次运行可能重新编译着色器。",
+    "advice": "NVIDIA 控制面板或删除 DXCache。",
+    "evidence": [
+      "NVIDIA\\\\DXCache"
+    ],
+    "confidence": 0.84
+  },
+  {
+    "id": "office-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\Office\\\\*\\\\OfficeFileCache\\\\**",
+    "displayName": "Microsoft Office 文件缓存",
+    "ownerApp": "Microsoft Office",
+    "purpose": "Office 打开文件缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "Office 最近文件与缓存。",
+    "riskText": "可重建，文档本身在用户目录。",
+    "advice": "关闭 Office 后清理 OfficeFileCache。",
+    "evidence": [
+      "OfficeFileCache"
+    ],
+    "confidence": 0.82
+  },
+  {
+    "id": "onedrive-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\OneDrive\\\\logs\\\\**",
+    "displayName": "OneDrive 日志",
+    "ownerApp": "OneDrive",
+    "purpose": "同步日志",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "OneDrive 客户端诊断与日志文件。",
+    "riskText": "可安全删除，不影响云端文件。",
+    "advice": "清理 logs 目录；同步文件在 OneDrive 文件夹中单独识别。",
+    "evidence": [
+      "OneDrive\\\\logs"
+    ],
+    "confidence": 0.82
+  },
+  {
+    "id": "onedrive-user-files",
+    "pathGlob": "C:\\\\Users\\\\*\\\\OneDrive\\\\**",
+    "displayName": "OneDrive 同步文件夹",
+    "ownerApp": "OneDrive",
+    "purpose": "云同步的个人文件",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "OneDrive 本地同步副本。",
+    "riskText": "删除本地副本可能影响离线访问；云端仍保留时需重新同步。",
+    "advice": "仅识别；用 OneDrive 释放空间功能而非粗暴删目录。",
+    "evidence": [
+      "Users\\\\*\\\\OneDrive"
+    ],
+    "confidence": 0.93
+  },
+  {
+    "id": "pagefile",
+    "pathGlob": "C:\\\\pagefile.sys",
+    "displayName": "虚拟内存 pagefile.sys",
+    "ownerApp": "Windows",
+    "purpose": "虚拟内存",
+    "risk": "forbidden",
+    "what": "系统虚拟内存文件。",
+    "riskText": "删除或移动需通过系统设置，直接删会导致严重问题。",
+    "advice": "在「系统 → 高级 → 性能」中调整大小，不要在本工具中删除。",
+    "evidence": [
+      "根目录 pagefile.sys"
+    ],
+    "confidence": 0.99,
+    "bucket": "system"
+  },
+  {
+    "id": "pip-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\pip\\\\cache\\\\**",
+    "displayName": "pip 包缓存",
+    "ownerApp": "pip",
+    "purpose": "Python wheel 缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "pip 下载包的本地缓存。",
+    "riskText": "可重建，下次安装略慢。",
+    "advice": "pip cache purge",
+    "evidence": [
+      "pip\\\\cache"
+    ],
     "confidence": 0.9
   },
   {
@@ -152,99 +576,27 @@
     "what": "pnpm 全局 store，多项目共享依赖硬链接。",
     "riskText": "粗暴删除可能导致已链接项目需重新 install。",
     "advice": "使用 pnpm store prune 而非手动删整个 store。",
-    "evidence": ["pnpm\\\\store"],
-    "confidence": 0.82
+    "evidence": [
+      "pnpm\\\\store"
+    ],
+    "confidence": 0.82,
+    "bucket": "slim"
   },
   {
-    "id": "windows-softwaredistribution",
-    "pathGlob": "C:\\\\Windows\\\\SoftwareDistribution\\\\Download\\\\**",
-    "displayName": "Windows 更新下载缓存",
-    "ownerApp": "Windows Update",
-    "purpose": "更新包下载",
+    "id": "qq-tencent-files",
+    "pathGlob": "C:\\\\Users\\\\*\\\\Documents\\\\Tencent Files\\\\**",
+    "displayName": "QQ / TIM 本地数据",
+    "ownerApp": "QQ",
+    "purpose": "聊天与下载缓存",
     "risk": "confirm",
-    "what": "Windows 更新已下载但未安装或备份的包。",
-    "riskText": "删除后可能需要重新下载更新；服务运行中可能锁定文件。属于可重建缓存，非禁止清理项。",
-    "advice": "优先使用「磁盘清理」→ Windows 更新清理，或停止 wuauserv 后清理 Download 目录；勿与 WinSxS 混淆。",
-    "evidence": ["SoftwareDistribution\\\\Download"],
-    "confidence": 0.8
-  },
-  {
-    "id": "winsxs",
-    "pathGlob": "C:\\\\Windows\\\\WinSxS\\\\**",
-    "displayName": "WinSxS 组件存储",
-    "ownerApp": "Windows",
-    "purpose": "系统组件与 Side-by-Side 程序集",
-    "risk": "forbidden",
-    "what": "Windows 核心组件库，体积大但不可简单删除。",
-    "riskText": "手动删除会导致系统不稳定或无法更新/修复。",
-    "advice": "使用「磁盘清理」→「Windows 更新清理」或 DISM，勿手动删文件夹。",
-    "evidence": ["WinSxS 路径", "系统目录"],
-    "confidence": 0.98
-  },
-  {
-    "id": "pagefile",
-    "pathGlob": "C:\\\\pagefile.sys",
-    "displayName": "虚拟内存 pagefile.sys",
-    "ownerApp": "Windows",
-    "purpose": "虚拟内存",
-    "risk": "forbidden",
-    "what": "系统虚拟内存文件。",
-    "riskText": "删除或移动需通过系统设置，直接删会导致严重问题。",
-    "advice": "在「系统 → 高级 → 性能」中调整大小，不要在本工具中删除。",
-    "evidence": ["根目录 pagefile.sys"],
-    "confidence": 0.99
-  },
-  {
-    "id": "hiberfil",
-    "pathGlob": "C:\\\\hiberfil.sys",
-    "displayName": "休眠文件 hiberfil.sys",
-    "ownerApp": "Windows",
-    "purpose": "休眠状态保存",
-    "risk": "forbidden",
-    "what": "休眠功能的内存镜像文件。",
-    "riskText": "删除需关闭休眠功能（powercfg），不应作为「垃圾」一键清。",
-    "advice": "管理员运行 powercfg /hibernate off 若确实不需要休眠。",
-    "evidence": ["hiberfil.sys"],
-    "confidence": 0.97
-  },
-  {
-    "id": "spotify-cache",
-    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Spotify\\\\Data\\\\**",
-    "displayName": "Spotify 缓存",
-    "ownerApp": "Spotify",
-    "purpose": "流媒体离线缓存",
-    "risk": "safe",
-    "what": "Spotify 缓存的音频片段与索引。",
-    "riskText": "删除后离线内容需重新缓存，账号与播放列表不受影响。",
-    "advice": "在 Spotify 设置中清理缓存，或进回收站。",
-    "evidence": ["Spotify\\\\Data"],
-    "confidence": 0.83
-  },
-  {
-    "id": "vscode-cache",
-    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Code\\\\Cache\\\\**",
-    "displayName": "VS Code 缓存",
-    "ownerApp": "Visual Studio Code",
-    "purpose": "编辑器 UI 与扩展缓存",
-    "risk": "safe",
-    "what": "VS Code 的 GPU 与扩展缓存数据。",
-    "riskText": "删除后首次打开略慢，设置与工程不受影响。",
-    "advice": "关闭 VS Code 后清理 Cache 目录。",
-    "evidence": ["Code\\\\Cache"],
-    "confidence": 0.81
-  },
-  {
-    "id": "docker-data",
-    "pathGlob": "C:\\\\ProgramData\\\\Docker\\\\**",
-    "displayName": "Docker Desktop 数据",
-    "ownerApp": "Docker Desktop",
-    "purpose": "镜像与容器层",
-    "risk": "confirm",
-    "what": "Docker 镜像、容器与卷的本地存储。",
-    "riskText": "删除会导致所有本地容器与未推送镜像丢失。",
-    "advice": "在 Docker Desktop 中 prune images/volumes。",
-    "evidence": ["ProgramData\\\\Docker"],
-    "confidence": 0.86
+    "what": "QQ 账号相关的消息、图片与接收文件。",
+    "riskText": "误删会丢失本地聊天记录与未备份文件。",
+    "advice": "在 QQ 设置里按账号清理缓存，保留重要下载。",
+    "evidence": [
+      "Tencent Files 目录结构"
+    ],
+    "confidence": 0.85,
+    "bucket": "user"
   },
   {
     "id": "recycle-bin",
@@ -256,7 +608,463 @@
     "what": "各用户回收站中的已删文件。",
     "riskText": "清空后文件难以恢复；属于用户可确认的常规清理，非系统禁止项。",
     "advice": "确认无需要恢复项后再清空回收站。",
-    "evidence": ["$Recycle.Bin"],
-    "confidence": 0.94
+    "evidence": [
+      "$Recycle.Bin"
+    ],
+    "confidence": 0.94,
+    "bucket": "slim"
+  },
+  {
+    "id": "slack-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Slack\\\\Cache\\\\**",
+    "displayName": "Slack 缓存",
+    "ownerApp": "Slack",
+    "purpose": "客户端缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "Slack 桌面版 Cache。",
+    "riskText": "可安全清理。",
+    "advice": "退出 Slack 后删除 Cache。",
+    "evidence": [
+      "Slack\\\\Cache"
+    ],
+    "confidence": 0.84
+  },
+  {
+    "id": "spotify-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Spotify\\\\Data\\\\**",
+    "displayName": "Spotify 缓存",
+    "ownerApp": "Spotify",
+    "purpose": "流媒体离线缓存",
+    "risk": "safe",
+    "what": "Spotify 缓存的音频片段与索引。",
+    "riskText": "删除后离线内容需重新缓存，账号与播放列表不受影响。",
+    "advice": "在 Spotify 设置中清理缓存，或进回收站。",
+    "evidence": [
+      "Spotify\\\\Data"
+    ],
+    "confidence": 0.83,
+    "bucket": "slim"
+  },
+  {
+    "id": "steam-downloads",
+    "pathGlob": "C:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\downloading\\\\**",
+    "displayName": "Steam 下载临时文件",
+    "ownerApp": "Steam",
+    "purpose": "游戏下载中间状态",
+    "risk": "safe",
+    "what": "正在下载或暂停的游戏分片数据。",
+    "riskText": "删除后需重新下载对应游戏，已安装游戏不受影响。",
+    "advice": "在 Steam 库中取消未完成下载后再清理此目录。",
+    "evidence": [
+      "steamapps\\\\downloading"
+    ],
+    "confidence": 0.9,
+    "bucket": "slim"
+  },
+  {
+    "id": "steam-shadercache",
+    "pathGlob": "C:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\shadercache\\\\**",
+    "displayName": "Steam 着色器缓存",
+    "ownerApp": "Steam",
+    "purpose": "GPU 着色器预编译缓存",
+    "risk": "safe",
+    "what": "为减少卡顿预编译的着色器文件。",
+    "riskText": "删除后首次启动游戏可能重新编译，出现短暂卡顿。",
+    "advice": "可安全清理；游戏会自动重建缓存。",
+    "evidence": [
+      "shadercache 目录"
+    ],
+    "confidence": 0.87,
+    "bucket": "slim"
+  },
+  {
+    "id": "swapfile",
+    "pathGlob": "C:\\\\swapfile.sys",
+    "displayName": "交换文件 swapfile.sys",
+    "ownerApp": "Windows",
+    "purpose": "Modern standby 交换",
+    "risk": "forbidden",
+    "bucket": "system",
+    "what": "Windows 交换/Modern Standby 相关系统文件。",
+    "riskText": "不可手动删除。",
+    "advice": "通过系统设置管理，勿在本工具操作。",
+    "evidence": [
+      "swapfile.sys"
+    ],
+    "confidence": 0.98
+  },
+  {
+    "id": "system-volume-information",
+    "pathGlob": "C:\\\\System Volume Information\\\\**",
+    "displayName": "系统卷信息",
+    "ownerApp": "Windows",
+    "purpose": "还原点与索引",
+    "risk": "forbidden",
+    "bucket": "system",
+    "what": "系统保护的还原点与元数据。",
+    "riskText": "无权限访问或删除，强行操作可能破坏还原点。",
+    "advice": "使用系统还原/磁盘清理管理还原点。",
+    "evidence": [
+      "System Volume Information"
+    ],
+    "confidence": 0.97
+  },
+  {
+    "id": "teams-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\Teams\\\\**",
+    "displayName": "Microsoft Teams 缓存",
+    "ownerApp": "Microsoft Teams",
+    "purpose": "会议与消息缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "Teams 本地缓存与日志。",
+    "riskText": "删除后需重新登录并重建缓存，聊天记录以云端为准。",
+    "advice": "退出 Teams 后清理 Local\\\\Microsoft\\\\Teams。",
+    "evidence": [
+      "Microsoft\\\\Teams"
+    ],
+    "confidence": 0.84
+  },
+  {
+    "id": "telegram-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Telegram Desktop\\\\tdata\\\\user_data\\\\cache\\\\**",
+    "displayName": "Telegram 缓存",
+    "ownerApp": "Telegram",
+    "purpose": "媒体缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "Telegram Desktop 本地媒体缓存。",
+    "riskText": "云端仍保留的消息可重新下载媒体。",
+    "advice": "Telegram 设置 → 高级 → 清理缓存。",
+    "evidence": [
+      "Telegram Desktop",
+      "cache"
+    ],
+    "confidence": 0.83
+  },
+  {
+    "id": "tencent-wegame",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Tencent\\\\WeGame\\\\**",
+    "displayName": "WeGame 缓存",
+    "ownerApp": "WeGame",
+    "purpose": "游戏平台缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "WeGame 下载与 UI 缓存。",
+    "riskText": "可重建，游戏本体在其它目录。",
+    "advice": "WeGame 设置清理缓存。",
+    "evidence": [
+      "Tencent\\\\WeGame"
+    ],
+    "confidence": 0.82
+  },
+  {
+    "id": "thumbcache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\Windows\\\\Explorer\\\\thumbcache_*.db",
+    "displayName": "缩略图缓存",
+    "ownerApp": "Windows 资源管理器",
+    "purpose": "文件夹缩略图数据库",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "explorer 生成的 thumbcache 数据库文件。",
+    "riskText": "删除后缩略图会重新生成。",
+    "advice": "关闭资源管理器窗口后删除 thumbcache_*.db。",
+    "evidence": [
+      "Explorer\\\\thumbcache"
+    ],
+    "confidence": 0.86
+  },
+  {
+    "id": "user-desktop",
+    "pathGlob": "C:\\\\Users\\\\*\\\\Desktop\\\\**",
+    "displayName": "「桌面」文件夹",
+    "ownerApp": "用户",
+    "purpose": "桌面文件与快捷方式目标",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "桌面上的文件与文件夹。",
+    "riskText": "个人文件，删除会导致资料丢失。",
+    "advice": "仅识别占用；请手动整理。",
+    "evidence": [
+      "Users\\\\*\\\\Desktop"
+    ],
+    "confidence": 0.97
+  },
+  {
+    "id": "user-documents",
+    "pathGlob": "C:\\\\Users\\\\*\\\\Documents\\\\**",
+    "displayName": "「文档」文件夹",
+    "ownerApp": "用户",
+    "purpose": "个人文档与项目",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "用户保存的文档、项目与资料。",
+    "riskText": "属于个人文件，误删不可恢复（回收站除外）。",
+    "advice": "仅识别占用；请自行整理或备份，本产品默认不提供清理。",
+    "evidence": [
+      "Users\\\\*\\\\Documents"
+    ],
+    "confidence": 0.97
+  },
+  {
+    "id": "user-music",
+    "pathGlob": "C:\\\\Users\\\\*\\\\Music\\\\**",
+    "displayName": "「音乐」文件夹",
+    "ownerApp": "用户",
+    "purpose": "音乐库",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "本地音乐与播放列表相关文件。",
+    "riskText": "个人媒体文件。",
+    "advice": "仅识别占用。",
+    "evidence": [
+      "Users\\\\*\\\\Music"
+    ],
+    "confidence": 0.95
+  },
+  {
+    "id": "user-pictures",
+    "pathGlob": "C:\\\\Users\\\\*\\\\Pictures\\\\**",
+    "displayName": "「图片」文件夹",
+    "ownerApp": "用户",
+    "purpose": "照片与图像",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "用户保存的照片、截图与图像。",
+    "riskText": "个人媒体，删除不可恢复。",
+    "advice": "仅识别；可配合云相册或外置盘归档。",
+    "evidence": [
+      "Users\\\\*\\\\Pictures"
+    ],
+    "confidence": 0.96
+  },
+  {
+    "id": "user-temp",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Temp\\\\**",
+    "displayName": "用户 Temp 临时文件",
+    "ownerApp": "各应用",
+    "purpose": "安装与运行时的短期临时文件",
+    "risk": "safe",
+    "what": "程序运行时创建的临时文件，多数已不再使用。",
+    "riskText": "正在运行的程序若仍占用个别文件，可能跳过无法删除。",
+    "advice": "关闭大型软件后清理；本工具仅进回收站。",
+    "evidence": [
+      "AppData\\\\Local\\\\Temp",
+      "修改时间较旧"
+    ],
+    "confidence": 0.86,
+    "bucket": "slim"
+  },
+  {
+    "id": "user-videos",
+    "pathGlob": "C:\\\\Users\\\\*\\\\Videos\\\\**",
+    "displayName": "「视频」文件夹",
+    "ownerApp": "用户",
+    "purpose": "视频与录制",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "用户视频、屏幕录制等。",
+    "riskText": "体积常较大，属于个人文件。",
+    "advice": "仅识别；请自行迁移或删除不需要的录像。",
+    "evidence": [
+      "Users\\\\*\\\\Videos"
+    ],
+    "confidence": 0.96
+  },
+  {
+    "id": "vscode-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Code\\\\Cache\\\\**",
+    "displayName": "VS Code 缓存",
+    "ownerApp": "Visual Studio Code",
+    "purpose": "编辑器 UI 与扩展缓存",
+    "risk": "safe",
+    "what": "VS Code 的 GPU 与扩展缓存数据。",
+    "riskText": "删除后首次打开略慢，设置与工程不受影响。",
+    "advice": "关闭 VS Code 后清理 Cache 目录。",
+    "evidence": [
+      "Code\\\\Cache"
+    ],
+    "confidence": 0.81,
+    "bucket": "slim"
+  },
+  {
+    "id": "wechat-files",
+    "pathGlob": "C:\\\\Users\\\\*\\\\Documents\\\\WeChat Files\\\\**",
+    "displayName": "微信本地数据",
+    "ownerApp": "微信",
+    "purpose": "聊天记录、图片与文件缓存",
+    "risk": "confirm",
+    "what": "微信 PC 版保存的聊天媒体、文件与数据库。",
+    "riskText": "删除可能导致聊天记录、接收文件丢失，无法从云端完整恢复。",
+    "advice": "在微信内清理指定聊天文件；不要整目录删除。",
+    "evidence": [
+      "Documents\\\\WeChat Files",
+      "体积通常较大"
+    ],
+    "confidence": 0.88,
+    "bucket": "user"
+  },
+  {
+    "id": "windows-old",
+    "pathGlob": "C:\\\\Windows.old\\\\**",
+    "displayName": "Windows.old 旧系统备份",
+    "ownerApp": "Windows 升级",
+    "purpose": "升级前的系统备份",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Windows 大版本升级后保留的旧系统目录，用于回退。",
+    "riskText": "删除后无法回退到升级前系统；确认不需要回退后可释放大量空间。",
+    "advice": "使用「磁盘清理」→「以前的 Windows 安装」，或系统设置→存储→临时文件。",
+    "evidence": [
+      "C:\\\\Windows.old",
+      "升级后常见"
+    ],
+    "confidence": 0.96
+  },
+  {
+    "id": "windows-prefetch",
+    "pathGlob": "C:\\\\Windows\\\\Prefetch\\\\**",
+    "displayName": "Windows Prefetch",
+    "ownerApp": "Windows",
+    "purpose": "启动加速预读",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "系统 Prefetch 跟踪文件。",
+    "riskText": "删除后首次启动程序略慢，系统会自动重建。",
+    "advice": "可纳入磁盘清理；勿与 WinSxS 混淆。",
+    "evidence": [
+      "Windows\\\\Prefetch"
+    ],
+    "confidence": 0.85
+  },
+  {
+    "id": "windows-softwaredistribution",
+    "pathGlob": "C:\\\\Windows\\\\SoftwareDistribution\\\\Download\\\\**",
+    "displayName": "Windows 更新下载缓存",
+    "ownerApp": "Windows Update",
+    "purpose": "更新包下载",
+    "risk": "confirm",
+    "what": "Windows 更新已下载但未安装或备份的包。",
+    "riskText": "删除后可能需要重新下载更新；服务运行中可能锁定文件。属于可重建缓存，非禁止清理项。",
+    "advice": "优先使用「磁盘清理」→ Windows 更新清理，或停止 wuauserv 后清理 Download 目录；勿与 WinSxS 混淆。",
+    "evidence": [
+      "SoftwareDistribution\\\\Download"
+    ],
+    "confidence": 0.8,
+    "bucket": "slim"
+  },
+  {
+    "id": "windows-temp",
+    "pathGlob": "C:\\\\Windows\\\\Temp\\\\**",
+    "displayName": "Windows Temp",
+    "ownerApp": "Windows",
+    "purpose": "系统级临时文件",
+    "risk": "safe",
+    "what": "系统与安装程序使用的临时目录。",
+    "riskText": "部分文件可能被系统锁定；清理失败项可忽略。可安全纳入磁盘清理/Temp 清理。",
+    "advice": "使用磁盘清理或本工具预览后回收站删除。",
+    "evidence": [
+      "C:\\\\Windows\\\\Temp"
+    ],
+    "confidence": 0.84,
+    "bucket": "slim"
+  },
+  {
+    "id": "winget-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\WinGet\\\\**",
+    "displayName": "WinGet 下载缓存",
+    "ownerApp": "Windows Package Manager",
+    "purpose": "安装包缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "winget 下载的安装包与索引缓存。",
+    "riskText": "可重建。",
+    "advice": "清理 WinGet 目录下 Packages 缓存。",
+    "evidence": [
+      "WinGet"
+    ],
+    "confidence": 0.83
+  },
+  {
+    "id": "winsxs",
+    "pathGlob": "C:\\\\Windows\\\\WinSxS\\\\**",
+    "displayName": "WinSxS 组件存储",
+    "ownerApp": "Windows",
+    "purpose": "系统组件与 Side-by-Side 程序集",
+    "risk": "forbidden",
+    "what": "Windows 核心组件库，体积大但不可简单删除。",
+    "riskText": "手动删除会导致系统不稳定或无法更新/修复。",
+    "advice": "使用「磁盘清理」→「Windows 更新清理」或 DISM，勿手动删文件夹。",
+    "evidence": [
+      "WinSxS 路径",
+      "系统目录"
+    ],
+    "confidence": 0.98,
+    "bucket": "system"
+  },
+  {
+    "id": "wps-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Kingsoft\\\\WPS Office\\\\**",
+    "displayName": "WPS Office 本地数据",
+    "ownerApp": "WPS",
+    "purpose": "缓存与升级包",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "WPS 缓存、备份与临时文件。",
+    "riskText": "勿删用户文档；仅清理明确 Cache/Temp 子目录。",
+    "advice": "WPS 自带清理工具。",
+    "evidence": [
+      "Kingsoft\\\\WPS"
+    ],
+    "confidence": 0.78
+  },
+  {
+    "id": "xbox-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Packages\\\\Microsoft.XboxApp_*\\\\**",
+    "displayName": "Xbox 应用数据",
+    "ownerApp": "Xbox",
+    "purpose": "应用与更新缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Xbox App UWP 包内缓存。",
+    "riskText": "可能影响游戏通行证客户端，需重新下载部分资源。",
+    "advice": "Xbox 设置内清理或删除明确为 Cache 的子目录。",
+    "evidence": [
+      "Microsoft.XboxApp_"
+    ],
+    "confidence": 0.8
+  },
+  {
+    "id": "yarn-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Yarn\\\\Cache\\\\**",
+    "displayName": "Yarn 缓存",
+    "ownerApp": "Yarn",
+    "purpose": "包下载缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "Yarn v1 全局缓存。",
+    "riskText": "可安全清理，项目需 reinstall 时重新拉取。",
+    "advice": "yarn cache clean",
+    "evidence": [
+      "Yarn\\\\Cache"
+    ],
+    "confidence": 0.88
+  },
+  {
+    "id": "zoom-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Zoom\\\\data\\\\**",
+    "displayName": "Zoom 数据缓存",
+    "ownerApp": "Zoom",
+    "purpose": "会议缓存与日志",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Zoom 本地 data 目录部分内容。",
+    "riskText": "可能含录制缓存，确认无本地录制后再清。",
+    "advice": "Zoom 设置内清理或删除明确 Cache 子目录。",
+    "evidence": [
+      "Zoom\\\\data"
+    ],
+    "confidence": 0.8
   }
 ]

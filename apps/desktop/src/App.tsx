@@ -10,7 +10,7 @@ import {
   buildSpaceListItems,
   diskSummaryFromScan,
   explanationForItem,
-  explanationForOtherGap,
+  explanationForPermissionGap,
   mockDiskSummary,
   rowToSpaceItem,
   suggestionCardsFromScan,
@@ -26,7 +26,7 @@ type ScanPhase = "idle" | "scanning" | "done" | "error";
 
 function App() {
   const [nav, setNav] = useState<NavId>("overview");
-  const [mode, setMode] = useState<GroupMode>("app");
+  const [mode, setMode] = useState<GroupMode>("volume");
   const [phase, setPhase] = useState<ScanPhase>("idle");
   const [scanError, setScanError] = useState("");
   const [progress, setProgress] = useState<ScanProgressView | null>(null);
@@ -167,8 +167,8 @@ function App() {
       onSelectItem(unknown);
       return;
     }
-    if (scanResult && scanResult.unexplainedBytes > 0) {
-      setExplainView(explanationForOtherGap(scanResult));
+    if (scanResult && scanResult.permissionGapBytes > 0) {
+      setExplainView(explanationForPermissionGap(scanResult));
       return;
     }
     setExplainView({
@@ -203,7 +203,7 @@ function App() {
         <header className="topbar">
           <span className="muted">
             {nav === "overview" ? "总览" : navItemsLabel(nav)} ·{" "}
-            {phase === "done" ? "C: 真实扫描" : "M2 只读扫描"}
+            {phase === "done" ? "C: 真实扫描 · M2.5" : "M2.5 只读扫描"}
           </span>
           <div className="topbar-actions">
             {scannerNote && (

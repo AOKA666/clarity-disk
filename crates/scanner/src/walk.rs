@@ -34,6 +34,7 @@ pub struct SpaceRow {
     pub rule_id: Option<String>,
     pub purpose: Option<String>,
     pub risk: Option<String>,
+    pub bucket: Option<String>,
     pub is_unknown: bool,
 }
 
@@ -47,6 +48,14 @@ pub struct SuggestionTotals {
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct BucketTotals {
+    pub user_bytes: u64,
+    pub slim_bytes: u64,
+    pub system_bytes: u64,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ScanResult {
     pub drive: String,
     pub total_bytes: u64,
@@ -56,13 +65,19 @@ pub struct ScanResult {
     pub paths_scanned: u64,
     /// 所有命中规则的文件字节合计（与列表规则行对应，可重叠分类视图）。
     pub matched_bytes: u64,
-    /// 盘已用 − 规则命中 − 尚未识别（未扫描/跳过/差额）。
+    /// 本次 walk 统计到的文件字节（顶级目录归因之和应等于此值）。
+    pub attributed_bytes: u64,
+    /// 盘已用 − walk 统计；主要为无权限跳过目录内体积、文件系统元数据等。
+    pub permission_gap_bytes: u64,
+    /// 兼容字段：permission_gap + 统计差（逐步弃用「规则差额」叙事）。
     pub unexplained_bytes: u64,
     pub skipped: Vec<SkippedEntry>,
+    pub by_top_level: Vec<SpaceRow>,
     pub by_app: Vec<SpaceRow>,
     pub by_purpose: Vec<SpaceRow>,
     pub unknown_rows: Vec<SpaceRow>,
     pub suggestions: SuggestionTotals,
+    pub buckets: BucketTotals,
 }
 
 /// 小于此值在 UI 中显示为 0.0 GB，不进入列表。
@@ -97,11 +112,13 @@ struct RuleAgg {
     owner_app: String,
     purpose: String,
     risk: String,
+    bucket: String,
 }
 
 pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanResult {
     let mut skipped_map: HashMap<String, String> = HashMap::new();
     let mut rule_aggs: HashMap<String, RuleAgg> = HashMap::new();
+    let mut top_level: HashMap<String, (u64, String)> = HashMap::new();
     let mut unknown_bytes: u64 = 0;
     let mut unknown_sample: Option<String> = None;
     let mut unknown_largest: u64 = 0;
@@ -144,6 +161,14 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
                 bytes_scanned.fetch_add(size, Ordering::Relaxed);
                 paths_scanned.fetch_add(1, Ordering::Relaxed);
 
+                if let Some(seg) = top_level_segment(&path_str) {
+                    let e = top_level.entry(seg.clone()).or_insert((0, path_str.clone()));
+                    e.0 += size;
+                    if path_str.len() > e.1.len() {
+                        e.1 = path_str.clone();
+                    }
+                }
+
                 if let Some(rule) = match_rule_for_path(&path_str) {
                     let entry = rule_aggs.entry(rule.id.clone()).or_insert_with(|| RuleAgg {
                         bytes: 0,
@@ -152,6 +177,7 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
                         owner_app: rule.owner_app.clone(),
                         purpose: rule.purpose.clone(),
                         risk: rule.risk.clone(),
+                        bucket: rule.bucket.clone(),
                     });
                     entry.bytes += size;
                     if path_str.len() > entry.sample_path.len() {
@@ -196,16 +222,17 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
     let (total_bytes, free_bytes) = volume_capacity(&options.root);
     let used_bytes = total_bytes.saturating_sub(free_bytes);
 
-    let mut by_app_map: HashMap<(String, String), (u64, String, String, String, String)> =
+    let mut by_app_map: HashMap<(String, String), (u64, String, String, String, String, String)> =
         HashMap::new();
     for agg in rule_aggs.values() {
-        let key = (agg.owner_app.clone(), agg.risk.clone());
+        let key = (agg.owner_app.clone(), agg.bucket.clone());
         let e = by_app_map.entry(key).or_insert((
             0,
             agg.sample_path.clone(),
             agg.rule_id.clone(),
             agg.purpose.clone(),
             agg.risk.clone(),
+            agg.bucket.clone(),
         ));
         e.0 += agg.bytes;
         if agg.sample_path.len() > e.1.len() {
@@ -217,30 +244,36 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
 
     let mut by_app: Vec<SpaceRow> = by_app_map
         .into_iter()
-        .map(|((owner, risk), (bytes, path, rule_id, purpose, risk_label))| SpaceRow {
-            id: row_id("app", &format!("{owner}-{risk}"), &rule_id),
-            label: owner,
-            size_bytes: bytes,
-            path,
-            rule_id: Some(rule_id),
-            purpose: Some(purpose),
-            risk: Some(risk_label),
-            is_unknown: false,
-        })
+        .map(
+            |((owner, bucket), (bytes, path, rule_id, purpose, risk_label, bucket_label))| {
+                SpaceRow {
+                    id: row_id("app", &format!("{owner}-{bucket}"), &rule_id),
+                    label: owner,
+                    size_bytes: bytes,
+                    path,
+                    rule_id: Some(rule_id),
+                    purpose: Some(purpose),
+                    risk: Some(risk_label),
+                    bucket: Some(bucket_label),
+                    is_unknown: false,
+                }
+            },
+        )
         .collect();
     by_app.sort_by(|a, b| b.size_bytes.cmp(&a.size_bytes));
     by_app.retain(|r| is_visible_list_bytes(r.size_bytes));
 
-    let mut purpose_map: HashMap<(String, String), (u64, String, String, String, String)> =
+    let mut purpose_map: HashMap<(String, String), (u64, String, String, String, String, String)> =
         HashMap::new();
     for agg in rule_aggs.values() {
-        let key = (agg.purpose.clone(), agg.risk.clone());
+        let key = (agg.purpose.clone(), agg.bucket.clone());
         let e = purpose_map.entry(key).or_insert((
             0,
             agg.sample_path.clone(),
             agg.rule_id.clone(),
             agg.purpose.clone(),
             agg.risk.clone(),
+            agg.bucket.clone(),
         ));
         e.0 += agg.bytes;
         if agg.sample_path.len() > e.1.len() {
@@ -251,16 +284,21 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
 
     let mut by_purpose: Vec<SpaceRow> = purpose_map
         .into_iter()
-        .map(|((purpose, risk), (bytes, path, rule_id, purpose_label, risk_label))| SpaceRow {
-            id: row_id("purpose", &format!("{purpose}-{risk}"), &rule_id),
-            label: purpose,
-            size_bytes: bytes,
-            path,
-            rule_id: Some(rule_id),
-            purpose: Some(purpose_label),
-            risk: Some(risk_label),
-            is_unknown: false,
-        })
+        .map(
+            |((purpose, bucket), (bytes, path, rule_id, purpose_label, risk_label, bucket_label))| {
+                SpaceRow {
+                    id: row_id("purpose", &format!("{purpose}-{bucket}"), &rule_id),
+                    label: purpose,
+                    size_bytes: bytes,
+                    path,
+                    rule_id: Some(rule_id),
+                    purpose: Some(purpose_label),
+                    risk: Some(risk_label),
+                    bucket: Some(bucket_label),
+                    is_unknown: false,
+                }
+            },
+        )
         .collect();
     by_purpose.sort_by(|a, b| b.size_bytes.cmp(&a.size_bytes));
     by_purpose.retain(|r| is_visible_list_bytes(r.size_bytes));
@@ -276,7 +314,55 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
     }
 
     let matched_bytes: u64 = rule_aggs.values().map(|a| a.bytes).sum();
-    let unexplained_bytes = used_bytes.saturating_sub(matched_bytes.saturating_add(unknown_bytes));
+    let walked_bytes = bytes_scanned.load(Ordering::Relaxed);
+    let permission_gap_bytes = used_bytes.saturating_sub(walked_bytes);
+    let unexplained_bytes = permission_gap_bytes;
+
+    let mut user_bytes = unknown_bytes;
+    let mut slim_bytes = 0u64;
+    let mut system_bytes = 0u64;
+    for agg in rule_aggs.values() {
+        match agg.bucket.as_str() {
+            "user" => user_bytes += agg.bytes,
+            "slim" => slim_bytes += agg.bytes,
+            "system" => system_bytes += agg.bytes,
+            _ => user_bytes += agg.bytes,
+        }
+    }
+
+    let mut by_top_level: Vec<SpaceRow> = top_level
+        .into_iter()
+        .map(|(seg, (bytes, sample))| {
+            let (label, bucket) = top_level_display(&seg);
+            SpaceRow {
+                id: row_id("vol", &seg, "top"),
+                label,
+                size_bytes: bytes,
+                path: sample,
+                rule_id: None,
+                purpose: Some(format!("C:\\{seg}")),
+                risk: None,
+                bucket: Some(bucket.to_string()),
+                is_unknown: false,
+            }
+        })
+        .collect();
+    by_top_level.sort_by(|a, b| b.size_bytes.cmp(&a.size_bytes));
+    by_top_level.retain(|r| is_visible_list_bytes(r.size_bytes));
+
+    if is_visible_list_bytes(permission_gap_bytes) {
+        by_top_level.push(SpaceRow {
+            id: "vol-permission-gap".into(),
+            label: "无权限 / 未遍历".into(),
+            size_bytes: permission_gap_bytes,
+            path: format!(r"{drive}\"),
+            rule_id: None,
+            purpose: Some("跳过目录内体积与元数据".into()),
+            risk: None,
+            bucket: Some("system".into()),
+            is_unknown: true,
+        });
+    }
 
     let unknown_rows = if is_visible_list_bytes(unknown_bytes) {
         vec![SpaceRow {
@@ -287,6 +373,7 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
             rule_id: None,
             purpose: None,
             risk: None,
+            bucket: Some("user".into()),
             is_unknown: true,
         }]
     } else {
@@ -304,11 +391,14 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
         total_bytes,
         used_bytes,
         free_bytes,
-        bytes_scanned: bytes_scanned.load(Ordering::Relaxed),
+        bytes_scanned: walked_bytes,
         paths_scanned: paths_scanned.load(Ordering::Relaxed),
         matched_bytes,
+        attributed_bytes: walked_bytes.saturating_add(permission_gap_bytes),
+        permission_gap_bytes,
         unexplained_bytes,
         skipped,
+        by_top_level,
         by_app,
         by_purpose,
         unknown_rows,
@@ -316,6 +406,11 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
             safe_bytes,
             confirm_bytes,
             unknown_bytes,
+        },
+        buckets: BucketTotals {
+            user_bytes,
+            slim_bytes,
+            system_bytes: system_bytes.saturating_add(permission_gap_bytes),
         },
     }
 }
@@ -385,6 +480,33 @@ fn row_id(scope: &str, label: &str, rule_id: &str) -> String {
     } else {
         format!("{scope}-{slug}-{rule_id}")
     }
+}
+
+fn top_level_segment(path: &str) -> Option<String> {
+    let normalized = path.replace('/', "\\");
+    let lower = normalized.to_lowercase();
+    let rest = lower
+        .strip_prefix(r"c:\")
+        .or_else(|| lower.strip_prefix(r"c:/"))?;
+    let seg = rest.split('\\').next().filter(|s| !s.is_empty())?;
+    Some(seg.to_string())
+}
+
+fn top_level_display(segment: &str) -> (String, &'static str) {
+    let key = segment.to_lowercase();
+    let (label, bucket) = match key.as_str() {
+        "users" => ("用户目录 (Users)".to_string(), "user"),
+        "windows" => ("Windows 系统".to_string(), "system"),
+        "program files" => ("程序 (Program Files)".to_string(), "slim"),
+        "program files (x86)" => ("程序 x86 (Program Files x86)".to_string(), "slim"),
+        "programdata" => ("ProgramData".to_string(), "slim"),
+        "$recycle.bin" => ("回收站 ($Recycle.Bin)".to_string(), "slim"),
+        "windows.old" => ("Windows.old".to_string(), "slim"),
+        "perflogs" => ("性能日志 (PerfLogs)".to_string(), "system"),
+        "recovery" => ("恢复 (Recovery)".to_string(), "system"),
+        _ => (format!("{segment}"), "user"),
+    };
+    (label, bucket)
 }
 
 fn volume_capacity(root: &Path) -> (u64, u64) {

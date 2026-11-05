@@ -22,8 +22,22 @@ export type RuleSchema = typeof schema;
 /** 全部种子规则（M1 约 20 条，M3 目标 ≥100）。 */
 export const rules: ClarityRule[] = seedRules as ClarityRule[];
 
-function normalizeWindowsPath(path: string): string {
-  return path.replace(/\//g, "\\").toLowerCase();
+export function normalizeWindowsPath(path: string): string {
+  return collapseBackslashes(path.replace(/\//g, "\\").toLowerCase());
+}
+
+function collapseBackslashes(path: string): string {
+  let out = "";
+  for (let i = 0; i < path.length; i++) {
+    const ch = path[i];
+    if (ch === "\\") {
+      out += "\\";
+      while (path[i + 1] === "\\") i++;
+    } else {
+      out += ch;
+    }
+  }
+  return out;
 }
 
 /** 将 schema 中的 glob 转为简单正则（仅支持 * 与 **）。 */

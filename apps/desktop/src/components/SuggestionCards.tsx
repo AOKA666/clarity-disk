@@ -1,4 +1,4 @@
-import type { SuggestionCard } from "../data/mockHome";
+import type { SuggestionCard } from "../data/homeModel";
 
 interface SuggestionCardsProps {
   cards: SuggestionCard[];

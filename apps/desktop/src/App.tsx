@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { CapacityRing } from "./components/CapacityRing";
 import { ExplanationPanel } from "./components/ExplanationPanel";
 import { Sidebar } from "./components/Sidebar";
@@ -30,6 +30,8 @@ function App() {
   const [progress, setProgress] = useState<ScanProgressView | null>(null);
   const [scanResult, setScanResult] = useState<ScanPayload | null>(null);
   const [scannerNote, setScannerNote] = useState<string>("");
+  const scanInFlight = useRef(false);
+  const unlistenProgressRef = useRef<UnlistenFn | null>(null);
 
   const diskSummary = scanResult
     ? diskSummaryFromScan(scanResult)
@@ -48,14 +50,12 @@ function App() {
     [scanResult],
   );
 
-  const items =
-    mode === "app"
-      ? byApp.length > 0
-        ? byApp
-        : unknownItems
-      : byPurpose.length > 0
-        ? byPurpose
-        : unknownItems;
+  const items = useMemo(() => {
+    if (mode === "app") {
+      return byApp.length > 0 ? byApp : unknownItems;
+    }
+    return byPurpose.length > 0 ? byPurpose : unknownItems;
+  }, [mode, byApp, byPurpose, unknownItems]);
 
   const suggestionCards = scanResult
     ? suggestionCardsFromScan(scanResult)
@@ -76,12 +76,32 @@ function App() {
     [items, selectedId],
   );
 
+  const selectItem = useCallback((item: SpaceItem) => {
+    setSelectedId(item.id);
+    setExplainView(explanationForItem(item));
+  }, []);
+
+  const selectFirstInMode = useCallback(
+    (nextMode: GroupMode) => {
+      const list =
+        nextMode === "app"
+          ? byApp.length > 0
+            ? byApp
+            : unknownItems
+          : byPurpose.length > 0
+            ? byPurpose
+            : unknownItems;
+      if (list[0]) {
+        selectItem(list[0]);
+      }
+    },
+    [byApp, byPurpose, unknownItems, selectItem],
+  );
+
   useEffect(() => {
-    if (items.length === 0) return;
-    const first = items[0];
-    setSelectedId(first.id);
-    setExplainView(explanationForItem(first));
-  }, [scanResult, mode]);
+    if (!scanResult) return;
+    selectFirstInMode(mode);
+  }, [scanResult, selectFirstInMode]);
 
   useEffect(() => {
     invoke<string>("scanner_status")
@@ -89,47 +109,54 @@ function App() {
       .catch(() => setScannerNote(""));
   }, []);
 
+  const runScan = useCallback(async (clearPrevious: boolean) => {
+    if (scanInFlight.current) return;
+    scanInFlight.current = true;
+    if (clearPrevious) {
+      setScanResult(null);
+      setSelectedId("");
+      setProgress(null);
+      setScanError("");
+    }
+    setPhase("scanning");
+    try {
+      const result = await invoke<ScanPayload>("start_c_scan");
+      setScanResult(result);
+      setPhase("done");
+    } catch (err) {
+      setScanError(String(err));
+      setPhase("error");
+    } finally {
+      scanInFlight.current = false;
+    }
+  }, []);
+
   useEffect(() => {
-    let unlistenProgress: (() => void) | undefined;
-    let unlistenComplete: (() => void) | undefined;
     let cancelled = false;
 
     (async () => {
-      unlistenProgress = await listen<ScanProgressView>("scan-progress", (e) => {
-        if (!cancelled) setProgress(e.payload);
-      });
-      unlistenComplete = await listen<ScanPayload>("scan-complete", (e) => {
+      const unlisten = await listen<ScanProgressView>("scan-progress", (e) => {
         if (!cancelled) {
-          setScanResult(e.payload);
-          setPhase("done");
+          setProgress(e.payload);
         }
       });
-
-      setPhase("scanning");
-      try {
-        const result = await invoke<ScanPayload>("start_c_scan");
-        if (!cancelled) {
-          setScanResult(result);
-          setPhase("done");
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setScanError(String(err));
-          setPhase("error");
-        }
+      if (cancelled) {
+        unlisten();
+        return;
       }
+      unlistenProgressRef.current = unlisten;
+      await runScan(false);
     })();
 
     return () => {
       cancelled = true;
-      unlistenProgress?.();
-      unlistenComplete?.();
+      unlistenProgressRef.current?.();
+      unlistenProgressRef.current = null;
     };
-  }, []);
+  }, [runScan]);
 
   const onSelectItem = (item: SpaceItem) => {
-    setSelectedId(item.id);
-    setExplainView(explanationForItem(item));
+    selectItem(item);
   };
 
   const onSelectSuggestion = (card: SuggestionCard) => {
@@ -156,18 +183,7 @@ function App() {
   };
 
   const rescan = () => {
-    setPhase("scanning");
-    setScanError("");
-    setProgress(null);
-    invoke<ScanPayload>("start_c_scan")
-      .then((result) => {
-        setScanResult(result);
-        setPhase("done");
-      })
-      .catch((err) => {
-        setScanError(String(err));
-        setPhase("error");
-      });
+    void runScan(true);
   };
 
   const progressLabel =
@@ -232,9 +248,7 @@ function App() {
               onSelect={onSelectItem}
               onModeChange={(m) => {
                 setMode(m);
-                const next =
-                  (m === "app" ? byApp : byPurpose)[0] ?? unknownItems[0];
-                if (next) onSelectItem(next);
+                selectFirstInMode(m);
               }}
             />
             {suggestionCards.length > 0 && (

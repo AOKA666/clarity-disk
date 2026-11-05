@@ -92,6 +92,39 @@ export function bytesToGb(bytes: number): number {
   return bytes / 1024 ** 3;
 }
 
+export function riskTier(risk?: RiskLevel): {
+  text: string;
+  cls: "risk-safe" | "risk-confirm" | "risk-forbidden" | "risk-unknown";
+} {
+  if (risk === "safe") {
+    return { text: "安全清理", cls: "risk-safe" };
+  }
+  if (risk === "confirm") {
+    return { text: "需确认", cls: "risk-confirm" };
+  }
+  if (risk === "forbidden") {
+    return { text: "禁止直接清", cls: "risk-forbidden" };
+  }
+  return { text: "待调查", cls: "risk-unknown" };
+}
+
+/** 主列表 vs 系统相关（forbidden），默认不把禁止项放进可操作主区域。 */
+export function partitionSpaceItems(items: SpaceItem[]): {
+  primary: SpaceItem[];
+  system: SpaceItem[];
+} {
+  const primary: SpaceItem[] = [];
+  const system: SpaceItem[] = [];
+  for (const item of items) {
+    if (!item.isUnknown && item.risk === "forbidden") {
+      system.push(item);
+    } else {
+      primary.push(item);
+    }
+  }
+  return { primary, system };
+}
+
 export function rowToSpaceItem(row: ScanRow): SpaceItem {
   return {
     id: row.id,

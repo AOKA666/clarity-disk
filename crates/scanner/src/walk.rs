@@ -202,7 +202,7 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
     let mut by_app: Vec<SpaceRow> = by_app_map
         .into_iter()
         .map(|(owner, (bytes, path, rule_id, purpose, risk))| SpaceRow {
-            id: slug_id(&owner),
+            id: row_id("app", &owner, &rule_id),
             label: owner,
             size_bytes: bytes,
             path,
@@ -225,7 +225,7 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
     let mut by_purpose: Vec<SpaceRow> = purpose_map
         .into_iter()
         .map(|(purpose, (bytes, path, rule_id, purpose_label, risk))| SpaceRow {
-            id: slug_id(&purpose),
+            id: row_id("purpose", &purpose, &rule_id),
             label: purpose,
             size_bytes: bytes,
             path,
@@ -343,6 +343,15 @@ fn slug_id(label: &str) -> String {
         })
         .collect();
     s.trim_matches('-').to_string()
+}
+
+fn row_id(scope: &str, label: &str, rule_id: &str) -> String {
+    let slug = slug_id(label);
+    if slug.is_empty() {
+        format!("{scope}-{rule_id}")
+    } else {
+        format!("{scope}-{slug}-{rule_id}")
+    }
 }
 
 fn volume_capacity(root: &Path) -> (u64, u64) {

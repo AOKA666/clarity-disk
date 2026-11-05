@@ -1,5 +1,5 @@
 import { getRuleById } from "@clarity/rules";
-import type { ExplanationView } from "../data/mockHome";
+import type { ExplanationView } from "../data/homeModel";
 
 interface ExplanationPanelProps {
   view: ExplanationView;
@@ -89,7 +89,7 @@ export function ExplanationPanel({ view }: ExplanationPanelProps) {
         </button>
       )}
       {r.risk === "confirm" && (
-        <p className="no-delete">需逐项确认 · M1 不执行删除</p>
+        <p className="no-delete">需逐项确认 · M2 不执行删除</p>
       )}
       {r.risk === "forbidden" && (
         <p className="no-delete">禁止一键清理 · 请按建议使用系统工具</p>

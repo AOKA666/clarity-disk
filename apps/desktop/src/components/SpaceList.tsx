@@ -1,4 +1,4 @@
-import type { SpaceItem } from "../data/mockHome";
+import type { SpaceItem } from "../data/homeModel";
 
 export type GroupMode = "app" | "purpose";
 
@@ -41,6 +41,9 @@ export function SpaceList({
           </button>
         </div>
       </header>
+      {items.length === 0 ? (
+        <p className="muted empty-hint">等待 C: 扫描结果…</p>
+      ) : (
       <ul className="rows">
         {items.map((item) => (
           <li key={item.id}>
@@ -56,6 +59,7 @@ export function SpaceList({
           </li>
         ))}
       </ul>
+      )}
     </section>
   );
 }

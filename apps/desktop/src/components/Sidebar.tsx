@@ -1,5 +1,5 @@
-import type { NavId } from "../data/mockHome";
-import { navItems } from "../data/mockHome";
+import type { NavId } from "../data/homeModel";
+import { navItems } from "../data/homeModel";
 
 interface SidebarProps {
   active: NavId;

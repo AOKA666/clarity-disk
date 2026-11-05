@@ -98,7 +98,7 @@
     "purpose": "系统级临时文件",
     "risk": "safe",
     "what": "系统与安装程序使用的临时目录。",
-    "riskText": "部分文件可能被系统锁定；清理失败项可忽略。",
+    "riskText": "部分文件可能被系统锁定；清理失败项可忽略。可安全纳入磁盘清理/Temp 清理。",
     "advice": "使用磁盘清理或本工具预览后回收站删除。",
     "evidence": ["C:\\\\Windows\\\\Temp"],
     "confidence": 0.84
@@ -163,8 +163,8 @@
     "purpose": "更新包下载",
     "risk": "confirm",
     "what": "Windows 更新已下载但未安装或备份的包。",
-    "riskText": "删除后可能需要重新下载更新；服务运行中可能锁定文件。",
-    "advice": "先停止 wuauserv 或使用「磁盘清理」中的 Windows 更新清理。",
+    "riskText": "删除后可能需要重新下载更新；服务运行中可能锁定文件。属于可重建缓存，非禁止清理项。",
+    "advice": "优先使用「磁盘清理」→ Windows 更新清理，或停止 wuauserv 后清理 Download 目录；勿与 WinSxS 混淆。",
     "evidence": ["SoftwareDistribution\\\\Download"],
     "confidence": 0.8
   },
@@ -254,7 +254,7 @@
     "purpose": "已删除文件暂存",
     "risk": "confirm",
     "what": "各用户回收站中的已删文件。",
-    "riskText": "清空后文件难以恢复。",
+    "riskText": "清空后文件难以恢复；属于用户可确认的常规清理，非系统禁止项。",
     "advice": "确认无需要恢复项后再清空回收站。",
     "evidence": ["$Recycle.Bin"],
     "confidence": 0.94

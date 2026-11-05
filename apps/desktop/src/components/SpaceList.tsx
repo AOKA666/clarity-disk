@@ -103,9 +103,9 @@ export function SpaceList({
           />
           {system.length > 0 && (
             <div className="system-block">
-              <h3 className="system-head">系统相关</h3>
+              <h3 className="system-head">系统相关 · 禁止直接清</h3>
               <p className="muted system-note">
-                休眠 / 虚拟内存 / WinSxS 等 · 禁止在本工具内清理
+                WinSxS / pagefile / hiberfil 等 · 仅解释与调查，M2 不提供删除
               </p>
               <ItemRows
                 rows={system}

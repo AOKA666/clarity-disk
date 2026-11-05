@@ -185,53 +185,68 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
     let (total_bytes, free_bytes) = volume_capacity(&options.root);
     let used_bytes = total_bytes.saturating_sub(free_bytes);
 
-    let mut by_app_map: HashMap<String, (u64, String, String, String, String)> = HashMap::new();
+    let mut by_app_map: HashMap<(String, String), (u64, String, String, String, String)> =
+        HashMap::new();
     for agg in rule_aggs.values() {
-        let e = by_app_map
-            .entry(agg.owner_app.clone())
-            .or_insert((0, agg.sample_path.clone(), agg.rule_id.clone(), agg.purpose.clone(), agg.risk.clone()));
+        let key = (agg.owner_app.clone(), agg.risk.clone());
+        let e = by_app_map.entry(key).or_insert((
+            0,
+            agg.sample_path.clone(),
+            agg.rule_id.clone(),
+            agg.purpose.clone(),
+            agg.risk.clone(),
+        ));
         e.0 += agg.bytes;
-        if agg.bytes > 0 && agg.sample_path.len() > e.1.len() {
+        if agg.sample_path.len() > e.1.len() {
             e.1 = agg.sample_path.clone();
             e.2 = agg.rule_id.clone();
             e.3 = agg.purpose.clone();
-            e.4 = agg.risk.clone();
         }
     }
 
     let mut by_app: Vec<SpaceRow> = by_app_map
         .into_iter()
-        .map(|(owner, (bytes, path, rule_id, purpose, risk))| SpaceRow {
-            id: row_id("app", &owner, &rule_id),
+        .map(|((owner, risk), (bytes, path, rule_id, purpose, risk_label))| SpaceRow {
+            id: row_id("app", &format!("{owner}-{risk}"), &rule_id),
             label: owner,
             size_bytes: bytes,
             path,
             rule_id: Some(rule_id),
             purpose: Some(purpose),
-            risk: Some(risk),
+            risk: Some(risk_label),
             is_unknown: false,
         })
         .collect();
     by_app.sort_by(|a, b| b.size_bytes.cmp(&a.size_bytes));
 
-    let mut purpose_map: HashMap<String, (u64, String, String, String, String)> = HashMap::new();
+    let mut purpose_map: HashMap<(String, String), (u64, String, String, String, String)> =
+        HashMap::new();
     for agg in rule_aggs.values() {
-        let e = purpose_map
-            .entry(agg.purpose.clone())
-            .or_insert((0, agg.sample_path.clone(), agg.rule_id.clone(), agg.purpose.clone(), agg.risk.clone()));
+        let key = (agg.purpose.clone(), agg.risk.clone());
+        let e = purpose_map.entry(key).or_insert((
+            0,
+            agg.sample_path.clone(),
+            agg.rule_id.clone(),
+            agg.purpose.clone(),
+            agg.risk.clone(),
+        ));
         e.0 += agg.bytes;
+        if agg.sample_path.len() > e.1.len() {
+            e.1 = agg.sample_path.clone();
+            e.2 = agg.rule_id.clone();
+        }
     }
 
     let mut by_purpose: Vec<SpaceRow> = purpose_map
         .into_iter()
-        .map(|(purpose, (bytes, path, rule_id, purpose_label, risk))| SpaceRow {
-            id: row_id("purpose", &purpose, &rule_id),
+        .map(|((purpose, risk), (bytes, path, rule_id, purpose_label, risk_label))| SpaceRow {
+            id: row_id("purpose", &format!("{purpose}-{risk}"), &rule_id),
             label: purpose,
             size_bytes: bytes,
             path,
             rule_id: Some(rule_id),
             purpose: Some(purpose_label),
-            risk: Some(risk),
+            risk: Some(risk_label),
             is_unknown: false,
         })
         .collect();

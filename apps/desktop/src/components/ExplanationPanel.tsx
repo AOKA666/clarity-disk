@@ -16,21 +16,43 @@ export function ExplanationPanel({ view }: ExplanationPanelProps) {
     return (
       <aside className="explain">
         <header>
-          <p className="eyebrow">解释卡 · 尚未识别</p>
+          <p className="eyebrow">
+            {view.eyebrow ??
+              (view.title === "其他占用"
+                ? "解释卡 · 空间差额"
+                : "解释卡 · 尚未识别")}
+          </p>
           <h2>{view.title}</h2>
           <code className="path">{view.path}</code>
         </header>
         <div className="qa">
-          <Question q="它是什么？" a="暂无规则匹配，不能自动归类到已知应用或用途。" />
-          <Question q="谁产生的？" a="来源未知，需结合修改时间与文件类型判断。" />
-          <Question
-            q="删掉会怎样？"
-            a="风险未评估。产品策略：未知项不提供删除按钮。"
-          />
-          <Question
-            q="建议怎么做？"
-            a="使用调查线索核对后再决定；可等待规则库更新或手动备份后处理。"
-          />
+          {view.title === "其他占用" ? (
+            <>
+              <Question
+                q="为什么列表合计远小于 C: 已用？"
+                a="列表只统计命中约 20 条规则的文件；其余已用空间在「尚未识别」或「其他占用」中体现。"
+              />
+              <Question
+                q="其他占用是什么？"
+                a="盘已用空间减去规则命中与尚未识别后的差额，含未扫描目录、权限跳过、统计误差等。"
+              />
+              <Question q="删掉会怎样？" a="M2 不提供删除；需先弄清目录来源再手动处理。" />
+              <Question q="建议怎么做？" a="查看下方调查线索；等待规则库扩展或配合资源管理器排查大目录。" />
+            </>
+          ) : (
+            <>
+              <Question q="它是什么？" a="暂无规则匹配，不能自动归类到已知应用或用途。" />
+              <Question q="谁产生的？" a="来源未知，需结合修改时间与文件类型判断。" />
+              <Question
+                q="删掉会怎样？"
+                a="风险未评估。产品策略：未知项不提供删除按钮。"
+              />
+              <Question
+                q="建议怎么做？"
+                a="使用调查线索核对后再决定；可等待规则库更新或手动备份后处理。"
+              />
+            </>
+          )}
         </div>
         <div className="evidence">
           <h3>调查线索</h3>

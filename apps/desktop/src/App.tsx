@@ -7,8 +7,10 @@ import { Sidebar } from "./components/Sidebar";
 import { SpaceList, type GroupMode } from "./components/SpaceList";
 import { SuggestionCards } from "./components/SuggestionCards";
 import {
+  buildSpaceListItems,
   diskSummaryFromScan,
   explanationForItem,
+  explanationForOtherGap,
   mockDiskSummary,
   rowToSpaceItem,
   suggestionCardsFromScan,
@@ -45,17 +47,11 @@ function App() {
     () => (scanResult ? scanResult.byPurpose.map(rowToSpaceItem) : []),
     [scanResult],
   );
-  const unknownItems = useMemo(
-    () => (scanResult ? scanResult.unknownRows.map(rowToSpaceItem) : []),
-    [scanResult],
-  );
 
   const items = useMemo(() => {
-    if (mode === "app") {
-      return byApp.length > 0 ? byApp : unknownItems;
-    }
-    return byPurpose.length > 0 ? byPurpose : unknownItems;
-  }, [mode, byApp, byPurpose, unknownItems]);
+    if (!scanResult) return [];
+    return buildSpaceListItems(scanResult, mode);
+  }, [scanResult, mode]);
 
   const suggestionCards = scanResult
     ? suggestionCardsFromScan(scanResult)
@@ -76,26 +72,23 @@ function App() {
     [items, selectedId],
   );
 
-  const selectItem = useCallback((item: SpaceItem) => {
-    setSelectedId(item.id);
-    setExplainView(explanationForItem(item));
-  }, []);
+  const selectItem = useCallback(
+    (item: SpaceItem) => {
+      setSelectedId(item.id);
+      setExplainView(explanationForItem(item, scanResult));
+    },
+    [scanResult],
+  );
 
   const selectFirstInMode = useCallback(
     (nextMode: GroupMode) => {
-      const list =
-        nextMode === "app"
-          ? byApp.length > 0
-            ? byApp
-            : unknownItems
-          : byPurpose.length > 0
-            ? byPurpose
-            : unknownItems;
+      if (!scanResult) return;
+      const list = buildSpaceListItems(scanResult, nextMode);
       if (list[0]) {
         selectItem(list[0]);
       }
     },
-    [byApp, byPurpose, unknownItems, selectItem],
+    [scanResult, selectItem],
   );
 
   useEffect(() => {
@@ -169,9 +162,13 @@ function App() {
         return;
       }
     }
-    const unknown = unknownItems[0];
+    const unknown = scanResult?.unknownRows.map(rowToSpaceItem)[0];
     if (unknown) {
       onSelectItem(unknown);
+      return;
+    }
+    if (scanResult && scanResult.unexplainedBytes > 0) {
+      setExplainView(explanationForOtherGap(scanResult));
       return;
     }
     setExplainView({

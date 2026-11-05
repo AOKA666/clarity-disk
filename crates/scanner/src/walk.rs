@@ -54,11 +54,22 @@ pub struct ScanResult {
     pub free_bytes: u64,
     pub bytes_scanned: u64,
     pub paths_scanned: u64,
+    /// 所有命中规则的文件字节合计（与列表规则行对应，可重叠分类视图）。
+    pub matched_bytes: u64,
+    /// 盘已用 − 规则命中 − 尚未识别（未扫描/跳过/差额）。
+    pub unexplained_bytes: u64,
     pub skipped: Vec<SkippedEntry>,
     pub by_app: Vec<SpaceRow>,
     pub by_purpose: Vec<SpaceRow>,
     pub unknown_rows: Vec<SpaceRow>,
     pub suggestions: SuggestionTotals,
+}
+
+/// 小于此值在 UI 中显示为 0.0 GB，不进入列表。
+const MIN_LIST_BYTES: u64 = 53_687_091; // 0.05 GiB
+
+fn is_visible_list_bytes(bytes: u64) -> bool {
+    bytes >= MIN_LIST_BYTES
 }
 
 pub struct ScanOptions {
@@ -218,6 +229,7 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
         })
         .collect();
     by_app.sort_by(|a, b| b.size_bytes.cmp(&a.size_bytes));
+    by_app.retain(|r| is_visible_list_bytes(r.size_bytes));
 
     let mut purpose_map: HashMap<(String, String), (u64, String, String, String, String)> =
         HashMap::new();
@@ -251,6 +263,7 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
         })
         .collect();
     by_purpose.sort_by(|a, b| b.size_bytes.cmp(&a.size_bytes));
+    by_purpose.retain(|r| is_visible_list_bytes(r.size_bytes));
 
     let mut safe_bytes = 0u64;
     let mut confirm_bytes = 0u64;
@@ -262,7 +275,10 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
         }
     }
 
-    let unknown_rows = if unknown_bytes > 0 {
+    let matched_bytes: u64 = rule_aggs.values().map(|a| a.bytes).sum();
+    let unexplained_bytes = used_bytes.saturating_sub(matched_bytes.saturating_add(unknown_bytes));
+
+    let unknown_rows = if is_visible_list_bytes(unknown_bytes) {
         vec![SpaceRow {
             id: "unknown".into(),
             label: "尚未识别".into(),
@@ -290,6 +306,8 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
         free_bytes,
         bytes_scanned: bytes_scanned.load(Ordering::Relaxed),
         paths_scanned: paths_scanned.load(Ordering::Relaxed),
+        matched_bytes,
+        unexplained_bytes,
         skipped,
         by_app,
         by_purpose,

@@ -33,6 +33,9 @@ export interface DiskSummary {
   usedGb: number;
   freeGb: number;
   reclaimableGb: number;
+  matchedGb?: number;
+  unknownGb?: number;
+  unexplainedGb?: number;
   localOnly: true;
 }
 
@@ -41,6 +44,7 @@ export interface ExplanationView {
   path: string;
   ruleId?: string;
   isUnknown: boolean;
+  eyebrow?: string;
   clues?: string[];
 }
 
@@ -58,6 +62,8 @@ export interface ScanPayload {
   freeBytes: number;
   bytesScanned: number;
   pathsScanned: number;
+  matchedBytes: number;
+  unexplainedBytes: number;
   skipped: { path: string; reason: string }[];
   byApp: ScanRow[];
   byPurpose: ScanRow[];
@@ -90,6 +96,17 @@ export const navItems: { id: NavId; label: string; badge?: number }[] = [
 
 export function bytesToGb(bytes: number): number {
   return bytes / 1024 ** 3;
+}
+
+/** 与列表 toFixed(1) GB 显示一致：0 或显示为 0.0 GB 的不展示。 */
+export const MIN_LIST_BYTES = 53_687_091;
+
+export function isVisibleListBytes(sizeBytes: number): boolean {
+  return sizeBytes >= MIN_LIST_BYTES;
+}
+
+export function isVisibleListRow(row: ScanRow): boolean {
+  return isVisibleListBytes(row.sizeBytes);
 }
 
 export function riskTier(risk?: RiskLevel): {
@@ -146,7 +163,66 @@ export function diskSummaryFromScan(scan: ScanPayload): DiskSummary {
     usedGb: bytesToGb(scan.usedBytes),
     freeGb: bytesToGb(scan.freeBytes),
     reclaimableGb,
+    matchedGb: bytesToGb(scan.matchedBytes),
+    unknownGb: bytesToGb(scan.suggestions.unknownBytes),
+    unexplainedGb: bytesToGb(scan.unexplainedBytes),
     localOnly: true,
+  };
+}
+
+export function otherGapSpaceItem(scan: ScanPayload): SpaceItem | null {
+  if (!isVisibleListBytes(scan.unexplainedBytes)) {
+    return null;
+  }
+  return {
+    id: "other-unattributed",
+    label: "其他占用",
+    sizeGb: bytesToGb(scan.unexplainedBytes),
+    path: `${scan.drive}\\`,
+    isUnknown: true,
+    purpose: "差额 / 未扫描",
+  };
+}
+
+export function buildSpaceListItems(
+  scan: ScanPayload,
+  mode: "app" | "purpose",
+): SpaceItem[] {
+  const main = (mode === "app" ? scan.byApp : scan.byPurpose)
+    .filter(isVisibleListRow)
+    .map(rowToSpaceItem);
+  const extras: SpaceItem[] = [];
+  for (const row of scan.unknownRows.filter(isVisibleListRow)) {
+    extras.push(rowToSpaceItem(row));
+  }
+  const gap = otherGapSpaceItem(scan);
+  if (gap) {
+    extras.push(gap);
+  }
+  if (main.length === 0 && extras.length > 0) {
+    return extras;
+  }
+  return [...main, ...extras];
+}
+
+export function explanationForOtherGap(scan: ScanPayload): ExplanationView {
+  const used = bytesToGb(scan.usedBytes).toFixed(1);
+  const matched = bytesToGb(scan.matchedBytes).toFixed(1);
+  const unknown = bytesToGb(scan.suggestions.unknownBytes).toFixed(1);
+  const gap = bytesToGb(scan.unexplainedBytes).toFixed(1);
+  return {
+    title: "其他占用",
+    path: `${scan.drive}\\`,
+    isUnknown: true,
+    eyebrow: "解释卡 · 空间差额",
+    clues: [
+      `C: 已用 ${used} GB（总容量 − 可用空间）`,
+      `规则命中合计 ${matched} GB · 尚未识别 ${unknown} GB · 差额 ${gap} GB`,
+      `本次 walk 统计 ${scan.pathsScanned.toLocaleString()} 个文件；无权限跳过 ${scan.skipped.length} 处目录`,
+      "差额常见原因：未匹配路径、跳过目录内体积、硬链接重复统计差、系统保留/元数据等",
+      "「谁占用了空间」主列表仅为规则命中聚合，不等于整盘已用空间",
+      "M2 只读 · 无删除操作",
+    ],
   };
 }
 
@@ -176,10 +252,16 @@ export function suggestionCardsFromScan(scan: ScanPayload): SuggestionCard[] {
       risk: "forbidden",
     },
   ];
-  return cards.filter((c) => c.sizeGb > 0.05);
+  return cards.filter((c) => isVisibleListBytes(c.sizeGb * 1024 ** 3));
 }
 
-export function explanationForItem(item: SpaceItem): ExplanationView {
+export function explanationForItem(
+  item: SpaceItem,
+  scan?: ScanPayload | null,
+): ExplanationView {
+  if (item.id === "other-unattributed" && scan) {
+    return explanationForOtherGap(scan);
+  }
   if (item.isUnknown || !item.ruleId) {
     return {
       title: item.label,

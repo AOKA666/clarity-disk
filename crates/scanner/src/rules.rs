@@ -129,6 +129,16 @@ mod tests {
     }
 
     #[test]
+    fn matches_jianyingpro() {
+        let m = match_rule_for_path(
+            r"C:\Users\Alice\AppData\Local\JianyingPro\User Data\test",
+        )
+        .expect("jianyingpro");
+        assert_eq!(m.id, "jianyingpro");
+        assert_eq!(m.bucket, "user");
+    }
+
+    #[test]
     fn seed_has_m25_rule_count() {
         let raw = include_str!("../../../packages/rules/rules.seed.json");
         let rules: Vec<ClarityRule> = serde_json::from_str(raw).unwrap();
@@ -138,6 +148,12 @@ mod tests {
             rules.len()
         );
         assert!(rules.iter().any(|r| r.id == "windows-old"));
+        assert!(rules.iter().any(|r| r.id == "jianyingpro"));
+        assert!(
+            rules.len() >= 100,
+            "batch-2 expects at least 100 seed rules, got {}",
+            rules.len()
+        );
         assert!(rules.iter().all(|r| !r.bucket.is_empty()));
     }
 }

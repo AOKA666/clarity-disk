@@ -20,7 +20,9 @@ export function ExplanationPanel({ view }: ExplanationPanelProps) {
             {view.eyebrow ??
               (view.title === "无权限 / 未遍历" || view.title === "其他占用"
                 ? "解释卡 · 空间差额"
-                : "解释卡 · 尚未识别")}
+                : view.title.startsWith("尚未识别")
+                  ? "解释卡 · 尚未识别（粗分组）"
+                  : "解释卡 · 尚未识别")}
           </p>
           <h2>{view.title}</h2>
           <code className="path">{view.path}</code>

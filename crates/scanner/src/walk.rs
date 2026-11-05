@@ -1,4 +1,5 @@
 use crate::rules::match_rule_for_path;
+use crate::unknown_coarse::classify_unknown_path;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -35,6 +36,7 @@ pub struct SpaceRow {
     pub purpose: Option<String>,
     pub risk: Option<String>,
     pub bucket: Option<String>,
+    pub unknown_group: Option<String>,
     pub is_unknown: bool,
 }
 
@@ -105,6 +107,14 @@ impl Default for ScanOptions {
 
 pub type ProgressCallback = Arc<dyn Fn(ScanProgress) + Send + Sync>;
 
+struct UnknownCoarseAgg {
+    bytes: u64,
+    sample_path: String,
+    label: String,
+    bucket: String,
+    dir_hint: String,
+}
+
 struct RuleAgg {
     bytes: u64,
     sample_path: String,
@@ -119,9 +129,7 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
     let mut skipped_map: HashMap<String, String> = HashMap::new();
     let mut rule_aggs: HashMap<String, RuleAgg> = HashMap::new();
     let mut top_level: HashMap<String, (u64, String)> = HashMap::new();
-    let mut unknown_bytes: u64 = 0;
-    let mut unknown_sample: Option<String> = None;
-    let mut unknown_largest: u64 = 0;
+    let mut unknown_coarse: HashMap<String, UnknownCoarseAgg> = HashMap::new();
 
     let bytes_scanned = AtomicU64::new(0);
     let paths_scanned = AtomicU64::new(0);
@@ -184,10 +192,19 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
                         entry.sample_path = path_str.clone();
                     }
                 } else {
-                    unknown_bytes += size;
-                    if size >= unknown_largest {
-                        unknown_largest = size;
-                        unknown_sample = Some(path_str.clone());
+                    let coarse = classify_unknown_path(&path_str);
+                    let entry = unknown_coarse
+                        .entry(coarse.id.clone())
+                        .or_insert_with(|| UnknownCoarseAgg {
+                            bytes: 0,
+                            sample_path: path_str.clone(),
+                            label: coarse.label.clone(),
+                            bucket: coarse.bucket.to_string(),
+                            dir_hint: coarse.dir_hint.clone(),
+                        });
+                    entry.bytes += size;
+                    if path_str.len() > entry.sample_path.len() {
+                        entry.sample_path = path_str.clone();
                     }
                 }
 
@@ -255,6 +272,7 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
                     purpose: Some(purpose),
                     risk: Some(risk_label),
                     bucket: Some(bucket_label),
+                    unknown_group: None,
                     is_unknown: false,
                 }
             },
@@ -295,6 +313,7 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
                     purpose: Some(purpose_label),
                     risk: Some(risk_label),
                     bucket: Some(bucket_label),
+                    unknown_group: None,
                     is_unknown: false,
                 }
             },
@@ -318,12 +337,21 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
     let permission_gap_bytes = used_bytes.saturating_sub(walked_bytes);
     let unexplained_bytes = permission_gap_bytes;
 
-    let mut user_bytes = unknown_bytes;
+    let mut user_bytes = 0u64;
     let mut slim_bytes = 0u64;
     let mut system_bytes = 0u64;
     for agg in rule_aggs.values() {
         match agg.bucket.as_str() {
             "user" => user_bytes += agg.bytes,
+            "slim" => slim_bytes += agg.bytes,
+            "system" => system_bytes += agg.bytes,
+            _ => user_bytes += agg.bytes,
+        }
+    }
+    let mut unknown_bytes = 0u64;
+    for agg in unknown_coarse.values() {
+        unknown_bytes += agg.bytes;
+        match agg.bucket.as_str() {
             "slim" => slim_bytes += agg.bytes,
             "system" => system_bytes += agg.bytes,
             _ => user_bytes += agg.bytes,
@@ -343,6 +371,7 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
                 purpose: Some(format!("C:\\{seg}")),
                 risk: None,
                 bucket: Some(bucket.to_string()),
+                unknown_group: None,
                 is_unknown: false,
             }
         })
@@ -360,25 +389,28 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
             purpose: Some("跳过目录内体积与元数据".into()),
             risk: None,
             bucket: Some("system".into()),
+            unknown_group: None,
             is_unknown: true,
         });
     }
 
-    let unknown_rows = if is_visible_list_bytes(unknown_bytes) {
-        vec![SpaceRow {
-            id: "unknown".into(),
-            label: "尚未识别".into(),
-            size_bytes: unknown_bytes,
-            path: unknown_sample.unwrap_or_else(|| format!(r"{drive}\\")),
+    let mut unknown_rows: Vec<SpaceRow> = unknown_coarse
+        .into_iter()
+        .filter(|(_, agg)| is_visible_list_bytes(agg.bytes))
+        .map(|(group_id, agg)| SpaceRow {
+            id: format!("unknown-{group_id}"),
+            label: format!("尚未识别 · {}", agg.label),
+            size_bytes: agg.bytes,
+            path: agg.sample_path,
             rule_id: None,
-            purpose: None,
+            purpose: Some(agg.dir_hint),
             risk: None,
-            bucket: Some("user".into()),
+            bucket: Some(agg.bucket),
+            unknown_group: Some(group_id),
             is_unknown: true,
-        }]
-    } else {
-        vec![]
-    };
+        })
+        .collect();
+    unknown_rows.sort_by(|a, b| b.size_bytes.cmp(&a.size_bytes));
 
     let mut skipped: Vec<SkippedEntry> = skipped_map
         .into_iter()

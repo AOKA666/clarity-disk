@@ -25,7 +25,8 @@ pnpm tauri dev
 
 - **顶目录归因**：`Users` / `Windows` / `Program Files` 等汇总，列表合计接近 C: 已用；差额在 Hero 与「无权限 / 未遍历」行说明
 - **三桶 UI**：你的文件（仅识别）· 可瘦身 · 系统别动
-- **规则库 ≥50 条**（含 `windows.old`、常见缓存与用户目录识别）；每条含 `bucket` 字段
+- **规则库 ≥50 条**（当前种子 **135** 条，含 `windows.old`、剪映 JianyingPro 等）；每条含 `bucket` 字段
+- **尚未识别粗分组**：未命中规则按 AppData/Program Files 等父目录拆成多行（≥0.05 GiB）
 - **无任何删除或回收站路径**（清理为 M4）
 
 ## M2 基础（已包含）

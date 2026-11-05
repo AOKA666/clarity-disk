@@ -1,6 +1,7 @@
 //! Clarity Disk C: 只读卷扫描（M2）。
 
 mod rules;
+mod unknown_coarse;
 mod walk;
 
 pub use rules::{match_rule_for_path, ClarityRule};

@@ -16,6 +16,7 @@ export interface SpaceItem {
   purpose?: string;
   risk?: RiskLevel;
   bucket?: BucketKind;
+  unknownGroup?: string;
   isUnknown?: boolean;
 }
 
@@ -96,6 +97,7 @@ export interface ScanRow {
   purpose?: string;
   risk?: RiskLevel;
   bucket?: BucketKind;
+  unknownGroup?: string;
   isUnknown: boolean;
 }
 
@@ -203,6 +205,7 @@ export function rowToSpaceItem(row: ScanRow): SpaceItem {
     purpose: row.purpose,
     risk: row.risk,
     bucket: row.bucket,
+    unknownGroup: row.unknownGroup,
     isUnknown: row.isUnknown,
   };
 }
@@ -252,14 +255,15 @@ export function buildSpaceListItems(
 
   const main = source.filter(isVisibleListRow).map(rowToSpaceItem);
 
+  const unknownItems = scan.unknownRows
+    .filter(isVisibleListRow)
+    .map(rowToSpaceItem);
+
   if (mode === "volume") {
-    return main;
+    return [...main, ...unknownItems];
   }
 
-  const extras: SpaceItem[] = [];
-  for (const row of scan.unknownRows.filter(isVisibleListRow)) {
-    extras.push(rowToSpaceItem(row));
-  }
+  const extras: SpaceItem[] = [...unknownItems];
   const gap = permissionGapSpaceItem(scan);
   if (gap) {
     extras.push(gap);
@@ -335,21 +339,31 @@ export function explanationForItem(
     return explanationForPermissionGap(scan);
   }
   if (item.isUnknown || !item.ruleId) {
+    const isCoarse = Boolean(item.unknownGroup || item.id.startsWith("unknown-"));
     const bucketNote =
       item.bucket === "user"
         ? "归入「你的文件」桶 · 不提供清理按钮"
-        : item.bucket === "system"
-          ? "归入「系统别动」桶 · 仅调查"
-          : undefined;
+        : item.bucket === "slim"
+          ? "归入「可瘦身」桶 · M2.5 仍不执行删除"
+          : item.bucket === "system"
+            ? "归入「系统别动」桶 · 仅调查"
+            : undefined;
     return {
       title: item.label,
       path: item.path,
       isUnknown: true,
+      eyebrow: isCoarse ? "解释卡 · 尚未识别（粗分组）" : undefined,
       clues: [
-        bucketNote ?? "目录不在规则库或未细分类",
+        isCoarse
+          ? "未命中规则库；按 AppData/Program Files 等父目录拆成多行，避免单行巨大的「尚未识别」。"
+          : (bucketNote ?? "目录不在规则库或未细分类"),
+        isCoarse && item.unknownGroup
+          ? `粗分组 ID：${item.unknownGroup}`
+          : null,
+        item.purpose ? `典型路径：${item.purpose}` : null,
         `体积约 ${item.sizeGb.toFixed(1)} GB`,
-        item.purpose ?? "来源需结合路径判断",
-        "产品策略：未知与用户文件项不提供删除",
+        bucketNote && isCoarse ? bucketNote : null,
+        "产品策略：尚未识别项不提供删除",
       ].filter(Boolean) as string[],
     };
   }

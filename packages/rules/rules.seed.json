@@ -1,5 +1,53 @@
 [
   {
+    "id": "115pan",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\115\\\\**",
+    "displayName": "115 网盘",
+    "ownerApp": "115",
+    "purpose": "离线下载与缓存",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "115 网盘：离线下载与缓存。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "115"
+    ],
+    "confidence": 0.79
+  },
+  {
+    "id": "123pan",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\123pan\\\\**",
+    "displayName": "123 云盘",
+    "ownerApp": "123 云盘",
+    "purpose": "客户端数据",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "123 云盘：客户端数据。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "123pan"
+    ],
+    "confidence": 0.8
+  },
+  {
+    "id": "360safe",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\360safe\\\\**",
+    "displayName": "360 安全卫士",
+    "ownerApp": "360",
+    "purpose": "卫士数据与日志",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "360 安全卫士：卫士数据与日志。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "360safe"
+    ],
+    "confidence": 0.77
+  },
+  {
     "id": "adobe-cache",
     "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Adobe\\\\Common\\\\Media Cache Files\\\\**",
     "displayName": "Adobe 媒体缓存",
@@ -16,6 +64,38 @@
     "confidence": 0.86
   },
   {
+    "id": "alibaba-apps",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Alibaba\\\\**",
+    "displayName": "阿里系客户端",
+    "ownerApp": "阿里巴巴",
+    "purpose": "本地缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "阿里系客户端：本地缓存。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Alibaba"
+    ],
+    "confidence": 0.8
+  },
+  {
+    "id": "aliyundrive",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\aDrive\\\\**",
+    "displayName": "阿里云盘",
+    "ownerApp": "阿里云盘",
+    "purpose": "本地同步与缓存",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "阿里云盘：本地同步与缓存。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "aDrive"
+    ],
+    "confidence": 0.87
+  },
+  {
     "id": "amd-shader-cache",
     "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\AMD\\\\DxCache\\\\**",
     "displayName": "AMD 着色器缓存",
@@ -30,6 +110,38 @@
       "AMD\\\\DxCache"
     ],
     "confidence": 0.83
+  },
+  {
+    "id": "amd-software",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\AMD\\\\**",
+    "displayName": "AMD Software 数据",
+    "ownerApp": "AMD",
+    "purpose": "驱动与缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "AMD Software 数据：驱动与缓存。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "AppData\\\\Local\\\\AMD"
+    ],
+    "confidence": 0.84
+  },
+  {
+    "id": "android-emulator",
+    "pathGlob": "C:\\\\Users\\\\*\\\\.android\\\\**",
+    "displayName": "Android 模拟器",
+    "ownerApp": "Android SDK",
+    "purpose": "AVD 与缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Android 模拟器：AVD 与缓存。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      ".android"
+    ],
+    "confidence": 0.86
   },
   {
     "id": "android-studio-cache",
@@ -78,6 +190,70 @@
       "Battle.net\\\\Agent\\\\cache"
     ],
     "confidence": 0.84
+  },
+  {
+    "id": "bilibili-app",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\bilibili\\\\**",
+    "displayName": "哔哩哔哩客户端",
+    "ownerApp": "哔哩哔哩",
+    "purpose": "安装目录缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "哔哩哔哩客户端：安装目录缓存。",
+    "riskText": "可重建缓存，清理后可能略慢一次。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "bilibili"
+    ],
+    "confidence": 0.83
+  },
+  {
+    "id": "blender",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Blender Foundation\\\\**",
+    "displayName": "Blender 配置",
+    "ownerApp": "Blender",
+    "purpose": "缓存与插件",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "Blender 配置：缓存与插件。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "Blender Foundation"
+    ],
+    "confidence": 0.8
+  },
+  {
+    "id": "bytedance-suite",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Bytedance\\\\**",
+    "displayName": "字节系应用数据",
+    "ownerApp": "字节跳动",
+    "purpose": "通用 Bytedance 本地目录",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "字节系应用数据：通用 Bytedance 本地目录。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "Bytedance"
+    ],
+    "confidence": 0.86
+  },
+  {
+    "id": "capcut",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\CapCut\\\\**",
+    "displayName": "CapCut 本地数据",
+    "ownerApp": "CapCut",
+    "purpose": "国际版剪映草稿与缓存",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "CapCut 本地数据：国际版剪映草稿与缓存。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "CapCut"
+    ],
+    "confidence": 0.91
   },
   {
     "id": "cargo-registry-cache",
@@ -129,6 +305,38 @@
     "bucket": "slim"
   },
   {
+    "id": "chrome-user-data",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Google\\\\Chrome\\\\User Data\\\\**",
+    "displayName": "Chrome 用户数据",
+    "ownerApp": "Google Chrome",
+    "purpose": "配置与扩展",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "Chrome 用户数据：配置与扩展。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "Chrome\\\\User Data"
+    ],
+    "confidence": 0.9
+  },
+  {
+    "id": "conda-pkgs",
+    "pathGlob": "C:\\\\Users\\\\*\\\\anaconda3\\\\pkgs\\\\**",
+    "displayName": "Anaconda 包缓存",
+    "ownerApp": "Anaconda",
+    "purpose": "conda pkgs",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Anaconda 包缓存：conda pkgs。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "anaconda3\\\\pkgs"
+    ],
+    "confidence": 0.83
+  },
+  {
     "id": "crashdumps",
     "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\CrashDumps\\\\**",
     "displayName": "用户态崩溃转储",
@@ -145,6 +353,38 @@
     "confidence": 0.88
   },
   {
+    "id": "cursor-app",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Cursor\\\\**",
+    "displayName": "Cursor 编辑器",
+    "ownerApp": "Cursor",
+    "purpose": "扩展、缓存与状态",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "Cursor 编辑器：扩展、缓存与状态。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "Roaming\\\\Cursor"
+    ],
+    "confidence": 0.88
+  },
+  {
+    "id": "cursor-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Cursor\\\\Cache\\\\**",
+    "displayName": "Cursor 缓存",
+    "ownerApp": "Cursor",
+    "purpose": "GPU/UI 缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "Cursor 缓存：GPU/UI 缓存。",
+    "riskText": "可重建缓存，清理后可能略慢一次。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Cursor\\\\Cache"
+    ],
+    "confidence": 0.86
+  },
+  {
     "id": "delivery-optimization",
     "pathGlob": "C:\\\\Windows\\\\SoftwareDistribution\\\\DeliveryOptimization\\\\**",
     "displayName": "传递优化缓存",
@@ -159,6 +399,38 @@
       "DeliveryOptimization"
     ],
     "confidence": 0.81
+  },
+  {
+    "id": "dell-support",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Dell\\\\**",
+    "displayName": "Dell SupportAssist",
+    "ownerApp": "Dell",
+    "purpose": "OEM 工具数据",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Dell SupportAssist：OEM 工具数据。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Dell"
+    ],
+    "confidence": 0.75
+  },
+  {
+    "id": "dingtalk",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\DingTalk\\\\**",
+    "displayName": "钉钉缓存与数据",
+    "ownerApp": "钉钉",
+    "purpose": "聊天与会议缓存",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "钉钉缓存与数据：聊天与会议缓存。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "DingTalk"
+    ],
+    "confidence": 0.9
   },
   {
     "id": "discord-cache",
@@ -191,6 +463,22 @@
     ],
     "confidence": 0.86,
     "bucket": "slim"
+  },
+  {
+    "id": "douyin-desktop",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Douyin\\\\**",
+    "displayName": "抖音 PC 版缓存",
+    "ownerApp": "抖音",
+    "purpose": "客户端缓存与下载",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "抖音 PC 版缓存：客户端缓存与下载。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Douyin"
+    ],
+    "confidence": 0.88
   },
   {
     "id": "downloads",
@@ -227,6 +515,22 @@
     "bucket": "slim"
   },
   {
+    "id": "edge-user-data",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\Edge\\\\User Data\\\\**",
+    "displayName": "Edge 用户数据",
+    "ownerApp": "Microsoft Edge",
+    "purpose": "配置与扩展",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "Edge 用户数据：配置与扩展。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "Edge\\\\User Data"
+    ],
+    "confidence": 0.9
+  },
+  {
     "id": "epic-games-cache",
     "pathGlob": "C:\\\\Program Files\\\\Epic Games\\\\Launcher\\\\Portal\\\\Saved\\\\webcache\\\\**",
     "displayName": "Epic 启动器 web 缓存",
@@ -240,6 +544,70 @@
     "evidence": [
       "Epic Games\\\\Launcher",
       "webcache"
+    ],
+    "confidence": 0.83
+  },
+  {
+    "id": "epic-games-data",
+    "pathGlob": "C:\\\\Program Files\\\\Epic Games\\\\**",
+    "displayName": "Epic 游戏安装",
+    "ownerApp": "Epic Games",
+    "purpose": "游戏本体与补丁",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Epic 游戏安装：游戏本体与补丁。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Epic Games"
+    ],
+    "confidence": 0.8
+  },
+  {
+    "id": "everything-index",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Everything\\\\**",
+    "displayName": "Everything 索引",
+    "ownerApp": "Everything",
+    "purpose": "文件名索引数据库",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Everything 索引：文件名索引数据库。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Everything"
+    ],
+    "confidence": 0.82
+  },
+  {
+    "id": "feishu",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Feishu\\\\**",
+    "displayName": "飞书本地数据",
+    "ownerApp": "飞书",
+    "purpose": "缓存、日志与离线",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "飞书本地数据：缓存、日志与离线。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "Feishu"
+    ],
+    "confidence": 0.89
+  },
+  {
+    "id": "figma",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Figma\\\\**",
+    "displayName": "Figma 桌面版",
+    "ownerApp": "Figma",
+    "purpose": "本地缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "Figma 桌面版：本地缓存。",
+    "riskText": "可重建缓存，清理后可能略慢一次。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Figma"
     ],
     "confidence": 0.83
   },
@@ -275,6 +643,22 @@
       "go-build"
     ],
     "confidence": 0.86
+  },
+  {
+    "id": "gog-galaxy",
+    "pathGlob": "C:\\\\Program Files (x86)\\\\GOG Galaxy\\\\**",
+    "displayName": "GOG Galaxy",
+    "ownerApp": "GOG",
+    "purpose": "游戏与 Galaxy 数据",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "GOG Galaxy：游戏与 Galaxy 数据。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "GOG Galaxy"
+    ],
+    "confidence": 0.77
   },
   {
     "id": "google-drive-sync",
@@ -325,6 +709,54 @@
     "bucket": "system"
   },
   {
+    "id": "hp-support",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\HP\\\\**",
+    "displayName": "HP 支持软件",
+    "ownerApp": "HP",
+    "purpose": "OEM 数据",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "HP 支持软件：OEM 数据。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "HP"
+    ],
+    "confidence": 0.75
+  },
+  {
+    "id": "huggingface-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\.cache\\\\huggingface\\\\**",
+    "displayName": "Hugging Face 缓存",
+    "ownerApp": "Hugging Face",
+    "purpose": "模型与数据集缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Hugging Face 缓存：模型与数据集缓存。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "huggingface"
+    ],
+    "confidence": 0.88
+  },
+  {
+    "id": "huorong",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Huorong\\\\**",
+    "displayName": "火绒安全数据",
+    "ownerApp": "火绒",
+    "purpose": "病毒库与日志",
+    "risk": "confirm",
+    "bucket": "system",
+    "what": "火绒安全数据：病毒库与日志。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Huorong"
+    ],
+    "confidence": 0.78
+  },
+  {
     "id": "inet-cache",
     "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\Windows\\\\INetCache\\\\**",
     "displayName": "Internet 临时文件",
@@ -339,6 +771,38 @@
       "INetCache"
     ],
     "confidence": 0.87
+  },
+  {
+    "id": "intel-graphics",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Intel\\\\**",
+    "displayName": "Intel 显卡/驱动数据",
+    "ownerApp": "Intel",
+    "purpose": "IGS 等缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Intel 显卡/驱动数据：IGS 等缓存。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "AppData\\\\Local\\\\Intel"
+    ],
+    "confidence": 0.82
+  },
+  {
+    "id": "iqiyi",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\IQIYI Video\\\\**",
+    "displayName": "爱奇艺缓存",
+    "ownerApp": "爱奇艺",
+    "purpose": "视频离线缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "爱奇艺缓存：视频离线缓存。",
+    "riskText": "可重建缓存，清理后可能略慢一次。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "IQIYI"
+    ],
+    "confidence": 0.84
   },
   {
     "id": "itunes-backup",
@@ -374,6 +838,103 @@
     "confidence": 0.88
   },
   {
+    "id": "jianyingpro",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\JianyingPro\\\\**",
+    "displayName": "剪映 / JianyingPro 本地数据",
+    "ownerApp": "剪映",
+    "purpose": "草稿、缓存与工程文件",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "剪映 / JianyingPro 本地数据：草稿、缓存与工程文件。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "JianyingPro",
+      "剪映专业版"
+    ],
+    "confidence": 0.94
+  },
+  {
+    "id": "jianyingpro-updater",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\JianyingPro\\\\Updater\\\\**",
+    "displayName": "剪映更新缓存",
+    "ownerApp": "剪映",
+    "purpose": "安装包与更新缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "剪映更新缓存：安装包与更新缓存。",
+    "riskText": "可重建缓存，清理后可能略慢一次。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "JianyingPro\\\\Updater"
+    ],
+    "confidence": 0.9
+  },
+  {
+    "id": "kingsoft-office2",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Kingsoft\\\\**",
+    "displayName": "金山系本地",
+    "ownerApp": "金山",
+    "purpose": "WPS 等缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "金山系本地：WPS 等缓存。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Kingsoft"
+    ],
+    "confidence": 0.83
+  },
+  {
+    "id": "lark",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Lark\\\\**",
+    "displayName": "Lark 国际版",
+    "ownerApp": "Lark",
+    "purpose": "飞书国际版本地",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "Lark 国际版：飞书国际版本地。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "Lark"
+    ],
+    "confidence": 0.87
+  },
+  {
+    "id": "lenovo-vantage",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Lenovo\\\\**",
+    "displayName": "联想 Vantage 等",
+    "ownerApp": "Lenovo",
+    "purpose": "OEM 软件数据",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "联想 Vantage 等：OEM 软件数据。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Lenovo"
+    ],
+    "confidence": 0.76
+  },
+  {
+    "id": "lmstudio",
+    "pathGlob": "C:\\\\Users\\\\*\\\\.cache\\\\lm-studio\\\\**",
+    "displayName": "LM Studio 缓存",
+    "ownerApp": "LM Studio",
+    "purpose": "模型缓存",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "LM Studio 缓存：模型缓存。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "lm-studio"
+    ],
+    "confidence": 0.85
+  },
+  {
     "id": "lol-game-cache",
     "pathGlob": "C:\\\\Riot Games\\\\**",
     "displayName": "Riot 游戏客户端",
@@ -390,6 +951,38 @@
     "confidence": 0.79
   },
   {
+    "id": "maven-repo",
+    "pathGlob": "C:\\\\Users\\\\*\\\\.m2\\\\repository\\\\**",
+    "displayName": "Maven 本地仓库",
+    "ownerApp": "Maven",
+    "purpose": "Java 依赖",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Maven 本地仓库：Java 依赖。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      ".m2\\\\repository"
+    ],
+    "confidence": 0.88
+  },
+  {
+    "id": "miniconda",
+    "pathGlob": "C:\\\\Users\\\\*\\\\miniconda3\\\\pkgs\\\\**",
+    "displayName": "Miniconda 包缓存",
+    "ownerApp": "Miniconda",
+    "purpose": "conda pkgs",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Miniconda 包缓存：conda pkgs。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "miniconda3\\\\pkgs"
+    ],
+    "confidence": 0.82
+  },
+  {
     "id": "minidump",
     "pathGlob": "C:\\\\Windows\\\\Minidump\\\\**",
     "displayName": "系统 Minidump",
@@ -404,6 +997,54 @@
       "Windows\\\\Minidump"
     ],
     "confidence": 0.84
+  },
+  {
+    "id": "miui-plus",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\MIUI+\\\\**",
+    "displayName": "MIUI+ / 小米互联",
+    "ownerApp": "小米",
+    "purpose": "跨屏缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "MIUI+ / 小米互联：跨屏缓存。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "MIUI+"
+    ],
+    "confidence": 0.78
+  },
+  {
+    "id": "msedge-webview2",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\EdgeWebView\\\\**",
+    "displayName": "WebView2 运行时",
+    "ownerApp": "Microsoft",
+    "purpose": "嵌入式浏览器缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "WebView2 运行时：嵌入式浏览器缓存。",
+    "riskText": "可重建缓存，清理后可能略慢一次。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "EdgeWebView"
+    ],
+    "confidence": 0.84
+  },
+  {
+    "id": "netease-apps",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\NetEase\\\\**",
+    "displayName": "网易系应用",
+    "ownerApp": "网易",
+    "purpose": "游戏与音乐等",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "网易系应用：游戏与音乐等。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "NetEase"
+    ],
+    "confidence": 0.85
   },
   {
     "id": "netease-cloud-music",
@@ -437,6 +1078,22 @@
     ],
     "confidence": 0.93,
     "bucket": "slim"
+  },
+  {
+    "id": "notion",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Notion\\\\**",
+    "displayName": "Notion 缓存",
+    "ownerApp": "Notion",
+    "purpose": "离线缓存",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "Notion 缓存：离线缓存。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "Notion"
+    ],
+    "confidence": 0.84
   },
   {
     "id": "npm-cache",
@@ -487,6 +1144,38 @@
     "confidence": 0.84
   },
   {
+    "id": "nvidia-geforce",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\NVIDIA Corporation\\\\**",
+    "displayName": "NVIDIA 驱动与 GeForce Experience",
+    "ownerApp": "NVIDIA",
+    "purpose": "驱动缓存与 ShadowPlay",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "NVIDIA 驱动与 GeForce Experience：驱动缓存与 ShadowPlay。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "NVIDIA Corporation"
+    ],
+    "confidence": 0.86
+  },
+  {
+    "id": "obsidian",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\obsidian\\\\**",
+    "displayName": "Obsidian 配置",
+    "ownerApp": "Obsidian",
+    "purpose": "插件与配置",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "Obsidian 配置：插件与配置。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "obsidian"
+    ],
+    "confidence": 0.85
+  },
+  {
     "id": "office-cache",
     "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\Office\\\\*\\\\OfficeFileCache\\\\**",
     "displayName": "Microsoft Office 文件缓存",
@@ -501,6 +1190,22 @@
       "OfficeFileCache"
     ],
     "confidence": 0.82
+  },
+  {
+    "id": "ollama-models",
+    "pathGlob": "C:\\\\Users\\\\*\\\\.ollama\\\\models\\\\**",
+    "displayName": "Ollama 模型",
+    "ownerApp": "Ollama",
+    "purpose": "本地 LLM 权重",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "Ollama 模型：本地 LLM 权重。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      ".ollama\\\\models"
+    ],
+    "confidence": 0.9
   },
   {
     "id": "onedrive-cache",
@@ -535,6 +1240,38 @@
     "confidence": 0.93
   },
   {
+    "id": "origin-ea",
+    "pathGlob": "C:\\\\Program Files\\\\EA Games\\\\**",
+    "displayName": "EA / Origin 游戏",
+    "ownerApp": "EA",
+    "purpose": "游戏安装目录",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "EA / Origin 游戏：游戏安装目录。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "EA Games"
+    ],
+    "confidence": 0.78
+  },
+  {
+    "id": "outlook-ost",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\Outlook\\\\**",
+    "displayName": "Outlook 本地缓存",
+    "ownerApp": "Outlook",
+    "purpose": "OST 与缓存",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "Outlook 本地缓存：OST 与缓存。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "Microsoft\\\\Outlook"
+    ],
+    "confidence": 0.87
+  },
+  {
     "id": "pagefile",
     "pathGlob": "C:\\\\pagefile.sys",
     "displayName": "虚拟内存 pagefile.sys",
@@ -549,6 +1286,22 @@
     ],
     "confidence": 0.99,
     "bucket": "system"
+  },
+  {
+    "id": "parsec",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Parsec\\\\**",
+    "displayName": "Parsec 远程",
+    "ownerApp": "Parsec",
+    "purpose": "客户端数据",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Parsec 远程：客户端数据。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Parsec"
+    ],
+    "confidence": 0.8
   },
   {
     "id": "pip-cache",
@@ -583,6 +1336,22 @@
     "bucket": "slim"
   },
   {
+    "id": "postman",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Postman\\\\**",
+    "displayName": "Postman 数据",
+    "ownerApp": "Postman",
+    "purpose": "集合缓存与日志",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "Postman 数据：集合缓存与日志。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "Postman"
+    ],
+    "confidence": 0.84
+  },
+  {
     "id": "qq-tencent-files",
     "pathGlob": "C:\\\\Users\\\\*\\\\Documents\\\\Tencent Files\\\\**",
     "displayName": "QQ / TIM 本地数据",
@@ -597,6 +1366,22 @@
     ],
     "confidence": 0.85,
     "bucket": "user"
+  },
+  {
+    "id": "quark",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Quark\\\\**",
+    "displayName": "夸克浏览器/网盘",
+    "ownerApp": "夸克",
+    "purpose": "缓存与下载",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "夸克浏览器/网盘：缓存与下载。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Quark"
+    ],
+    "confidence": 0.85
   },
   {
     "id": "recycle-bin",
@@ -615,6 +1400,22 @@
     "bucket": "slim"
   },
   {
+    "id": "sharex",
+    "pathGlob": "C:\\\\Users\\\\*\\\\Documents\\\\ShareX\\\\**",
+    "displayName": "ShareX 截图",
+    "ownerApp": "ShareX",
+    "purpose": "截图历史",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "ShareX 截图：截图历史。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "ShareX"
+    ],
+    "confidence": 0.81
+  },
+  {
     "id": "slack-cache",
     "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Slack\\\\Cache\\\\**",
     "displayName": "Slack 缓存",
@@ -629,6 +1430,22 @@
       "Slack\\\\Cache"
     ],
     "confidence": 0.84
+  },
+  {
+    "id": "sogou-pinyin",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\LocalLow\\\\SogouPY\\\\**",
+    "displayName": "搜狗输入法",
+    "ownerApp": "搜狗",
+    "purpose": "词库与用户数据",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "搜狗输入法：词库与用户数据。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "SogouPY"
+    ],
+    "confidence": 0.85
   },
   {
     "id": "spotify-cache",
@@ -679,6 +1496,22 @@
     "bucket": "slim"
   },
   {
+    "id": "sunlogin",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\SunloginClient\\\\**",
+    "displayName": "向日葵远程",
+    "ownerApp": "向日葵",
+    "purpose": "日志与缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "向日葵远程：日志与缓存。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "SunloginClient"
+    ],
+    "confidence": 0.8
+  },
+  {
     "id": "swapfile",
     "pathGlob": "C:\\\\swapfile.sys",
     "displayName": "交换文件 swapfile.sys",
@@ -727,6 +1560,22 @@
     "confidence": 0.84
   },
   {
+    "id": "teams-classic",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Microsoft\\\\Teams\\\\**",
+    "displayName": "Teams 经典版 Roaming",
+    "ownerApp": "Microsoft Teams",
+    "purpose": "旧版 Teams 数据",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Teams 经典版 Roaming：旧版 Teams 数据。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Roaming\\\\Microsoft\\\\Teams"
+    ],
+    "confidence": 0.83
+  },
+  {
     "id": "telegram-cache",
     "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Telegram Desktop\\\\tdata\\\\user_data\\\\cache\\\\**",
     "displayName": "Telegram 缓存",
@@ -742,6 +1591,38 @@
       "cache"
     ],
     "confidence": 0.83
+  },
+  {
+    "id": "tencent-games",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Tencent\\\\**",
+    "displayName": "腾讯系本地数据",
+    "ownerApp": "腾讯",
+    "purpose": "通用 Tencent 目录",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "腾讯系本地数据：通用 Tencent 目录。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "AppData\\\\Local\\\\Tencent"
+    ],
+    "confidence": 0.84
+  },
+  {
+    "id": "tencent-meeting",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Tencent\\\\WeMeet\\\\**",
+    "displayName": "腾讯会议",
+    "ownerApp": "腾讯会议",
+    "purpose": "录制与缓存",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "腾讯会议：录制与缓存。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "WeMeet"
+    ],
+    "confidence": 0.88
   },
   {
     "id": "tencent-wegame",
@@ -774,6 +1655,86 @@
       "Explorer\\\\thumbcache"
     ],
     "confidence": 0.86
+  },
+  {
+    "id": "todesk",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\ToDesk\\\\**",
+    "displayName": "ToDesk 数据",
+    "ownerApp": "ToDesk",
+    "purpose": "远程客户端",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "ToDesk 数据：远程客户端。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "ToDesk"
+    ],
+    "confidence": 0.8
+  },
+  {
+    "id": "ubisoft",
+    "pathGlob": "C:\\\\Program Files\\\\Ubisoft\\\\**",
+    "displayName": "育碧游戏",
+    "ownerApp": "Ubisoft",
+    "purpose": "Uplay/Connect 游戏",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "育碧游戏：Uplay/Connect 游戏。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Ubisoft"
+    ],
+    "confidence": 0.78
+  },
+  {
+    "id": "unity-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Unity\\\\cache\\\\**",
+    "displayName": "Unity 编辑器缓存",
+    "ownerApp": "Unity",
+    "purpose": "Library 缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "Unity 编辑器缓存：Library 缓存。",
+    "riskText": "可重建缓存，清理后可能略慢一次。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Unity\\\\cache"
+    ],
+    "confidence": 0.85
+  },
+  {
+    "id": "unity-hub",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\UnityHub\\\\**",
+    "displayName": "Unity Hub",
+    "ownerApp": "Unity",
+    "purpose": "Hub 缓存与下载",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Unity Hub：Hub 缓存与下载。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "UnityHub"
+    ],
+    "confidence": 0.82
+  },
+  {
+    "id": "unreal-engine",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\UnrealEngine\\\\**",
+    "displayName": "Unreal Engine 缓存",
+    "ownerApp": "Epic",
+    "purpose": "DerivedData 等",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Unreal Engine 缓存：DerivedData 等。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "UnrealEngine"
+    ],
+    "confidence": 0.84
   },
   {
     "id": "user-desktop",
@@ -873,6 +1834,70 @@
     "confidence": 0.96
   },
   {
+    "id": "virtualbox",
+    "pathGlob": "C:\\\\Users\\\\*\\\\.VirtualBox\\\\**",
+    "displayName": "VirtualBox",
+    "ownerApp": "Oracle",
+    "purpose": "虚拟机配置",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "VirtualBox：虚拟机配置。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      ".VirtualBox"
+    ],
+    "confidence": 0.82
+  },
+  {
+    "id": "vmware",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\VMware\\\\**",
+    "displayName": "VMware Workstation",
+    "ownerApp": "VMware",
+    "purpose": "虚拟机索引与日志",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "VMware Workstation：虚拟机索引与日志。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "VMware"
+    ],
+    "confidence": 0.83
+  },
+  {
+    "id": "vs-build",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\MSBuild\\\\**",
+    "displayName": "MSBuild 缓存",
+    "ownerApp": "Visual Studio",
+    "purpose": "构建缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "MSBuild 缓存：构建缓存。",
+    "riskText": "可重建缓存，清理后可能略慢一次。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "MSBuild"
+    ],
+    "confidence": 0.8
+  },
+  {
+    "id": "vs-cache",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Microsoft\\\\VisualStudio\\\\**",
+    "displayName": "Visual Studio 缓存",
+    "ownerApp": "Visual Studio",
+    "purpose": "组件缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Visual Studio 缓存：组件缓存。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "VisualStudio"
+    ],
+    "confidence": 0.85
+  },
+  {
     "id": "vscode-cache",
     "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Code\\\\Cache\\\\**",
     "displayName": "VS Code 缓存",
@@ -904,6 +1929,22 @@
     ],
     "confidence": 0.88,
     "bucket": "user"
+  },
+  {
+    "id": "windows-installer-cache",
+    "pathGlob": "C:\\\\Windows\\\\Installer\\\\**",
+    "displayName": "Windows Installer 缓存",
+    "ownerApp": "Windows",
+    "purpose": "MSI 补丁缓存",
+    "risk": "confirm",
+    "bucket": "slim",
+    "what": "Windows Installer 缓存：MSI 补丁缓存。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Windows\\\\Installer"
+    ],
+    "confidence": 0.79
   },
   {
     "id": "windows-old",
@@ -1020,6 +2061,38 @@
     "confidence": 0.78
   },
   {
+    "id": "wsl-data",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Packages\\\\*\\\\LocalState\\\\ext4.vhdx",
+    "displayName": "WSL 虚拟磁盘",
+    "ownerApp": "WSL",
+    "purpose": "Linux 子系统镜像",
+    "risk": "forbidden",
+    "bucket": "system",
+    "what": "WSL 虚拟磁盘：Linux 子系统镜像。",
+    "riskText": "删除前请确认用途与后果。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "ext4.vhdx"
+    ],
+    "confidence": 0.92
+  },
+  {
+    "id": "wxwork",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\WXWork\\\\**",
+    "displayName": "企业微信数据",
+    "ownerApp": "企业微信",
+    "purpose": "本地聊天与文件",
+    "risk": "confirm",
+    "bucket": "user",
+    "what": "企业微信数据：本地聊天与文件。",
+    "riskText": "属于个人/应用数据，默认仅识别，不提供清理。",
+    "advice": "仅识别占用；请在应用内或资源管理器中自行整理。",
+    "evidence": [
+      "WXWork"
+    ],
+    "confidence": 0.9
+  },
+  {
     "id": "xbox-cache",
     "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Packages\\\\Microsoft.XboxApp_*\\\\**",
     "displayName": "Xbox 应用数据",
@@ -1036,6 +2109,22 @@
     "confidence": 0.8
   },
   {
+    "id": "ximalaya",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Ximalaya\\\\**",
+    "displayName": "喜马拉雅缓存",
+    "ownerApp": "喜马拉雅",
+    "purpose": "音频缓存",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "喜马拉雅缓存：音频缓存。",
+    "riskText": "可重建缓存，清理后可能略慢一次。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "Ximalaya"
+    ],
+    "confidence": 0.81
+  },
+  {
     "id": "yarn-cache",
     "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\Yarn\\\\Cache\\\\**",
     "displayName": "Yarn 缓存",
@@ -1050,6 +2139,22 @@
       "Yarn\\\\Cache"
     ],
     "confidence": 0.88
+  },
+  {
+    "id": "youku",
+    "pathGlob": "C:\\\\Users\\\\*\\\\AppData\\\\Local\\\\youku\\\\**",
+    "displayName": "优酷客户端",
+    "ownerApp": "优酷",
+    "purpose": "缓存与下载",
+    "risk": "safe",
+    "bucket": "slim",
+    "what": "优酷客户端：缓存与下载。",
+    "riskText": "可重建缓存，清理后可能略慢一次。",
+    "advice": "确认不需要后再在 M4 预览进回收站。",
+    "evidence": [
+      "youku"
+    ],
+    "confidence": 0.82
   },
   {
     "id": "zoom-cache",

@@ -399,7 +399,7 @@ pub fn scan_volume(options: ScanOptions, on_progress: ProgressCallback) -> ScanR
         .filter(|(_, agg)| is_visible_list_bytes(agg.bytes))
         .map(|(group_id, agg)| SpaceRow {
             id: format!("unknown-{group_id}"),
-            label: format!("尚未识别 · {}", agg.label),
+            label: agg.label.clone(),
             size_bytes: agg.bytes,
             path: agg.sample_path,
             rule_id: None,

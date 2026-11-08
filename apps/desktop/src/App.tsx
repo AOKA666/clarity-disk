@@ -9,18 +9,29 @@ import {
   type OverviewScreen,
   buildSlimDrillItems,
   buildSystemDrillItems,
-  buildUserPersonalItems,
   explanationForHomeBlock,
+  isUserUsageEligible,
 } from "./components/SpaceOverview";
 import {
   diskSummaryFromScan,
   explanationForItem,
   mockDiskSummary,
+  type ExplanationView,
   type NavId,
   type ScanPayload,
   type ScanProgressView,
   type SpaceItem,
 } from "./data/homeModel";
+import {
+  getUsagePref,
+  setUsagePref,
+  usagePrefKey,
+  type UsageChoice,
+} from "./data/usagePrefs";
+import {
+  buildUserVendorPersonalItems,
+  slimCacheHintsForUserItem,
+} from "./data/userVendorRows";
 import "./App.css";
 
 type ScanPhase = "idle" | "scanning" | "done" | "error";
@@ -29,9 +40,43 @@ function drillItems(scan: ScanPayload, screen: OverviewScreen): SpaceItem[] {
   if (screen === "drill-system") return buildSystemDrillItems(scan);
   if (screen === "drill-slim") return buildSlimDrillItems(scan);
   if (screen === "drill-user") {
-    return [...buildUserPersonalItems(scan), ...buildSlimDrillItems(scan)];
+    return [
+      ...buildUserVendorPersonalItems(scan),
+      ...buildSlimDrillItems(scan),
+    ];
   }
   return [];
+}
+
+function enrichExplanation(
+  item: SpaceItem,
+  base: ExplanationView,
+  scan: ScanPayload | null,
+): ExplanationView {
+  if (!scan || !isUserUsageEligible(item)) return base;
+  const key = usagePrefKey(item);
+  const choice = getUsagePref(key);
+  const caches = slimCacheHintsForUserItem(scan, item);
+  const extra: string[] = [];
+  if (choice === "unused") {
+    extra.push("已标记「不用了」：整体视为可瘦身候选（M4 前不执行删除）。");
+  } else if (choice === "active") {
+    extra.push("已标记「还在用」：建议仅清理下方缓存类候选项。");
+  }
+  return {
+    ...base,
+    title: item.label,
+    usageEligible: true,
+    usageKey: key,
+    usageChoice: choice,
+    cacheCandidates: caches.map((c) => ({
+      id: c.id,
+      label: c.label,
+      sizeGb: c.sizeGb,
+      risk: c.risk,
+    })),
+    clues: [...(base.clues ?? []), ...extra],
+  };
 }
 
 function App() {
@@ -42,15 +87,17 @@ function App() {
   const [progress, setProgress] = useState<ScanProgressView | null>(null);
   const [scanResult, setScanResult] = useState<ScanPayload | null>(null);
   const [scannerNote, setScannerNote] = useState<string>("");
+  const [usageRevision, setUsageRevision] = useState(0);
   const scanInFlight = useRef(false);
   const unlistenProgressRef = useRef<UnlistenFn | null>(null);
+  const selectedItemRef = useRef<SpaceItem | null>(null);
 
   const diskSummary = scanResult
     ? diskSummaryFromScan(scanResult)
     : mockDiskSummary;
 
   const [selectedId, setSelectedId] = useState("");
-  const [explainView, setExplainView] = useState(() =>
+  const [explainView, setExplainView] = useState<ExplanationView>(() =>
     explanationForItem({
       id: "placeholder",
       label: "等待扫描",
@@ -60,10 +107,25 @@ function App() {
     }),
   );
 
-  const selectItem = useCallback(
+  const applySelection = useCallback(
     (item: SpaceItem) => {
       setSelectedId(item.id);
-      setExplainView(explanationForItem(item, scanResult));
+      selectedItemRef.current = item;
+      const base = explanationForItem(item, scanResult);
+      setExplainView(enrichExplanation(item, base, scanResult));
+    },
+    [scanResult],
+  );
+
+  const onUsageChoice = useCallback(
+    (key: string, choice: UsageChoice) => {
+      setUsagePref(key, choice);
+      setUsageRevision((n) => n + 1);
+      const item = selectedItemRef.current;
+      if (item && usagePrefKey(item) === key) {
+        const base = explanationForItem(item, scanResult);
+        setExplainView(enrichExplanation(item, base, scanResult));
+      }
     },
     [scanResult],
   );
@@ -74,6 +136,7 @@ function App() {
       if (!scanResult) return;
       if (next === "home") {
         setSelectedId("");
+        selectedItemRef.current = null;
         setExplainView(
           explanationForItem({
             id: "home-hint",
@@ -92,7 +155,7 @@ function App() {
       }
       const items = drillItems(scanResult, next);
       if (items[0]) {
-        selectItem(items[0]);
+        applySelection(items[0]);
       } else if (next === "drill-system") {
         setExplainView(explanationForHomeBlock("system", scanResult));
       } else if (next === "drill-user") {
@@ -101,13 +164,14 @@ function App() {
         setExplainView(explanationForHomeBlock("slim", scanResult));
       }
     },
-    [scanResult, selectItem],
+    [scanResult, applySelection],
   );
 
   useEffect(() => {
     if (!scanResult) return;
     setScreen("home");
     setSelectedId("");
+    selectedItemRef.current = null;
     setExplainView(
       explanationForItem({
         id: "home-hint",
@@ -117,8 +181,7 @@ function App() {
         isUnknown: true,
         clues: [
           `C: 已用约 ${diskSummaryFromScan(scanResult).usedGb.toFixed(1)} GB`,
-          "首页仅「系统文件」「用户文件」两大块 + 可瘦身汇总",
-          "点进用户文件可分别查看个人占用与可清理候选",
+          "用户文件按厂商名展示；可选还在用 / 不用了",
         ],
       }),
     );
@@ -240,11 +303,12 @@ function App() {
               scan={scanResult}
               screen={screen}
               selectedId={selectedId}
-              onSelect={selectItem}
+              onSelect={applySelection}
               onNavigate={onNavigate}
+              usageRevision={usageRevision}
             />
           </div>
-          <ExplanationPanel view={explainView} />
+          <ExplanationPanel view={explainView} onUsageChoice={onUsageChoice} />
         </div>
       </main>
     </div>

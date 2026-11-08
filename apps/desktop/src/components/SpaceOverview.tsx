@@ -1,4 +1,5 @@
 import {
+  bucketTier,
   bytesToGb,
   isVisibleListBytes,
   riskTier,
@@ -6,6 +7,16 @@ import {
   type ScanPayload,
   type SpaceItem,
 } from "../data/homeModel";
+import {
+  getUsagePref,
+  type UsageChoice,
+  usagePrefKey,
+} from "../data/usagePrefs";
+import {
+  buildUserVendorPersonalItems,
+  sortBySizeDesc,
+  vendorKeyForItem,
+} from "../data/userVendorRows";
 
 export type OverviewScreen =
   | "home"
@@ -19,6 +30,11 @@ interface SpaceOverviewProps {
   selectedId: string;
   onSelect: (item: SpaceItem) => void;
   onNavigate: (screen: OverviewScreen) => void;
+  usageRevision: number;
+}
+
+function SortNote() {
+  return <p className="sort-note muted">按体积 ↓ 排序（大→小）</p>;
 }
 
 function DetailRows({
@@ -26,31 +42,36 @@ function DetailRows({
   selectedId,
   onSelect,
   showRisk,
+  usageRevision: _usageRevision,
 }: {
   rows: SpaceItem[];
   selectedId: string;
   onSelect: (item: SpaceItem) => void;
   showRisk?: boolean;
+  usageRevision?: number;
 }) {
   return (
     <ul className="rows">
       {rows.map((item) => {
+        const pref = getUsagePref(usagePrefKey(item));
         const tier = showRisk
           ? item.risk
             ? riskTier(item.risk)
             : riskTier(undefined)
-          : riskTier(undefined);
+          : pref === "unused"
+            ? bucketTier("slim")
+            : riskTier(undefined);
         return (
           <li key={item.id}>
             <button
               type="button"
               className={`row${selectedId === item.id ? " selected" : ""}${
                 item.bucket === "system" ? " row-system" : ""
-              }`}
+              }${pref === "unused" ? " row-slim-candidate" : ""}`}
               onClick={() => onSelect(item)}
             >
               <span className="row-label">{item.label}</span>
-              {showRisk && (
+              {(showRisk || pref === "unused") && (
                 <span className={`risk-pill row-risk ${tier.cls}`}>
                   {tier.text}
                 </span>
@@ -126,24 +147,7 @@ export function buildSystemDrillItems(scan: ScanPayload): SpaceItem[] {
   const unknowns = scan.unknownRows
     .filter((r) => r.bucket === "system")
     .map(rowToSpaceItem);
-  const merged = [...tops, ...apps, ...unknowns];
-  merged.sort((a, b) => b.sizeGb - a.sizeGb);
-  return merged;
-}
-
-export function buildUserPersonalItems(scan: ScanPayload): SpaceItem[] {
-  const tops = scan.byTopLevel
-    .filter((r) => r.bucket === "user")
-    .map(rowToSpaceItem);
-  const apps = scan.byApp
-    .filter((r) => r.bucket === "user")
-    .map(rowToSpaceItem);
-  const unknowns = scan.unknownRows
-    .filter((r) => r.bucket === "user")
-    .map(rowToSpaceItem);
-  const merged = [...tops, ...apps, ...unknowns];
-  merged.sort((a, b) => b.sizeGb - a.sizeGb);
-  return merged;
+  return sortBySizeDesc([...tops, ...apps, ...unknowns]);
 }
 
 export function buildSlimDrillItems(scan: ScanPayload): SpaceItem[] {
@@ -156,9 +160,32 @@ export function buildSlimDrillItems(scan: ScanPayload): SpaceItem[] {
   const unknowns = scan.unknownRows
     .filter((r) => r.bucket === "slim")
     .map(rowToSpaceItem);
-  const merged = [...tops, ...apps, ...unknowns];
-  merged.sort((a, b) => b.sizeGb - a.sizeGb);
-  return merged;
+  return sortBySizeDesc([...tops, ...apps, ...unknowns]);
+}
+
+function withUsageSlimBoost(
+  slimBase: SpaceItem[],
+  personal: SpaceItem[],
+  _usageRevision: number,
+): SpaceItem[] {
+  const extra: SpaceItem[] = [];
+  const seen = new Set(slimBase.map((s) => vendorKeyForItem(s)));
+  for (const p of personal) {
+    const key = usagePrefKey(p);
+    if (getUsagePref(key) !== "unused") continue;
+    if (seen.has(vendorKeyForItem(p))) continue;
+    extra.push({
+      ...p,
+      bucket: "slim",
+      risk: "confirm",
+      purpose: `${p.label} · 标记为不用了（整体可瘦身候选）`,
+    });
+  }
+  return sortBySizeDesc([...slimBase, ...extra]);
+}
+
+function filterActivePersonal(personal: SpaceItem[]): SpaceItem[] {
+  return personal.filter((p) => getUsagePref(usagePrefKey(p)) !== "unused");
 }
 
 export function explanationForHomeBlock(
@@ -187,8 +214,8 @@ export function explanationForHomeBlock(
       : kind === "user"
         ? [
             `合计约 ${gb.toFixed(1)} GB`,
-            "含 Users 顶目录、文档/聊天/下载等规则命中与尚未识别（个人向）",
-            "点进可查看明细；个人内容默认不提供清理",
+            "按厂商/文件夹名展示；可选「还在用 / 不用了」",
+            "个人内容默认不提供删除",
           ]
         : [
             `合计约 ${gb.toFixed(1)} GB`,
@@ -210,6 +237,7 @@ export function SpaceOverview({
   selectedId,
   onSelect,
   onNavigate,
+  usageRevision,
 }: SpaceOverviewProps) {
   if (!scan) {
     return (
@@ -244,7 +272,7 @@ export function SpaceOverview({
           />
           <HomeBlock
             title="用户文件"
-            subtitle="个人资料、应用数据、尚未识别（粗分组）"
+            subtitle="按厂商/文件夹查看占用"
             sizeGb={userGb}
             tone="user"
             onOpen={() => onNavigate("drill-user")}
@@ -265,8 +293,10 @@ export function SpaceOverview({
   };
 
   const systemRows = buildSystemDrillItems(scan);
-  const personalRows = buildUserPersonalItems(scan);
-  const slimRows = buildSlimDrillItems(scan);
+  const personalAll = buildUserVendorPersonalItems(scan);
+  const personalRows = filterActivePersonal(personalAll);
+  const slimBase = buildSlimDrillItems(scan);
+  const slimRows = withUsageSlimBoost(slimBase, personalAll, usageRevision);
 
   return (
     <section className="panel space-list">
@@ -283,13 +313,14 @@ export function SpaceOverview({
           {screen === "drill-slim"
             ? "仅展示可瘦身候选 · 风险标签 · M4 才进回收站"
             : screen === "drill-user"
-              ? "上：个人与未识别 · 下：可清理候选（不含个人文档默认项）"
+              ? "上：厂商/文件夹 · 下：可清理候选（含标记「不用了」项）"
               : "系统相关分项 · 仅调查"}
         </p>
       </header>
 
       {screen === "drill-system" && (
         <>
+          <SortNote />
           {systemRows.length === 0 ? (
             <p className="muted empty-hint">暂无可见系统分项</p>
           ) : (
@@ -298,6 +329,7 @@ export function SpaceOverview({
               selectedId={selectedId}
               onSelect={onSelect}
               showRisk
+              usageRevision={usageRevision}
             />
           )}
         </>
@@ -305,8 +337,11 @@ export function SpaceOverview({
 
       {screen === "drill-user" && (
         <>
-          <h3 className="drill-section-head">个人与未识别</h3>
-          <p className="muted drill-section-note">仅识别占用 · 无清理按钮</p>
+          <h3 className="drill-section-head">个人与应用数据</h3>
+          <p className="muted drill-section-note">
+            厂商/文件夹名 · 请在右侧选择「还在用 / 不用了」
+          </p>
+          <SortNote />
           {personalRows.length === 0 ? (
             <p className="muted empty-hint">暂无可见分项</p>
           ) : (
@@ -314,12 +349,14 @@ export function SpaceOverview({
               rows={personalRows}
               selectedId={selectedId}
               onSelect={onSelect}
+              usageRevision={usageRevision}
             />
           )}
           <h3 className="drill-section-head">可清理候选</h3>
           <p className="muted drill-section-note">
             缓存 / 安装残留 · 显示风险等级
           </p>
+          <SortNote />
           {slimRows.length === 0 ? (
             <p className="muted empty-hint">暂无可瘦身候选</p>
           ) : (
@@ -328,6 +365,7 @@ export function SpaceOverview({
               selectedId={selectedId}
               onSelect={onSelect}
               showRisk
+              usageRevision={usageRevision}
             />
           )}
         </>
@@ -335,6 +373,7 @@ export function SpaceOverview({
 
       {screen === "drill-slim" && (
         <>
+          <SortNote />
           {slimRows.length === 0 ? (
             <p className="muted empty-hint">暂无可瘦身候选</p>
           ) : (
@@ -343,6 +382,7 @@ export function SpaceOverview({
               selectedId={selectedId}
               onSelect={onSelect}
               showRisk
+              usageRevision={usageRevision}
             />
           )}
         </>
@@ -350,3 +390,14 @@ export function SpaceOverview({
     </section>
   );
 }
+
+export function isUserUsageEligible(item: SpaceItem): boolean {
+  return (
+    item.bucket === "user" &&
+    (Boolean(item.unknownGroup) ||
+      item.id.startsWith("vendor-") ||
+      Boolean(item.ruleId))
+  );
+}
+
+export { type UsageChoice };

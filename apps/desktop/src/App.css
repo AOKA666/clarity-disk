@@ -343,6 +343,66 @@
   font-size: 12px;
 }
 
+.sort-note {
+  margin: 0 8px 8px;
+  font-size: 11px;
+}
+
+.row-slim-candidate {
+  border-left: 2px solid rgba(34, 197, 94, 0.45);
+}
+
+.usage-choice-block {
+  margin: 12px 0 16px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.usage-choice-block h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.usage-choice-hint {
+  margin: 0 0 10px;
+  font-size: 12px;
+}
+
+.usage-choice-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.usage-choice-btns .ghost-btn.on {
+  border-color: var(--accent);
+  color: var(--text);
+  background: var(--accent-soft);
+}
+
+.usage-outcome {
+  margin: 10px 0 0;
+  font-size: 12px;
+}
+
+.cache-candidates {
+  margin-top: 12px;
+}
+
+.cache-candidates h4 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cache-candidates ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+}
+
 .rows {
   list-style: none;
   margin: 0;

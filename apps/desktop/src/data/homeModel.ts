@@ -1,4 +1,5 @@
 import type { BucketKind, RiskLevel } from "@clarity/rules";
+import type { UsageChoice } from "./usagePrefs";
 
 export type NavId =
   | "overview"
@@ -53,6 +54,11 @@ export interface ExplanationView {
   isUnknown: boolean;
   eyebrow?: string;
   clues?: string[];
+  /** 用户侧厂商行：展示「还用不用」 */
+  usageEligible?: boolean;
+  usageKey?: string;
+  usageChoice?: UsageChoice | null;
+  cacheCandidates?: { id: string; label: string; sizeGb: number; risk?: string }[];
 }
 
 /** @deprecated 旧三视图列表；新 IA 使用 SpaceOverview 钻取 */
@@ -328,7 +334,11 @@ export function explanationForItem(
     return explanationForPermissionGap(scan);
   }
   if (item.isUnknown || !item.ruleId) {
-    const isCoarse = Boolean(item.unknownGroup || item.id.startsWith("unknown-"));
+    const isCoarse = Boolean(
+      item.unknownGroup ||
+        item.id.startsWith("unknown-") ||
+        item.id.startsWith("vendor-"),
+    );
     const bucketNote =
       item.bucket === "user"
         ? "归入「你的文件」桶 · 不提供清理按钮"
@@ -341,10 +351,10 @@ export function explanationForItem(
       title: item.label,
       path: item.path,
       isUnknown: true,
-      eyebrow: isCoarse ? "解释卡 · 尚未识别（粗分组）" : undefined,
+      eyebrow: isCoarse ? "解释卡 · 应用/文件夹" : undefined,
       clues: [
         isCoarse
-          ? "未命中规则库；按 AppData/Program Files 等父目录拆成多行，避免单行巨大的「尚未识别」。"
+          ? "按路径父目录归并显示为厂商或文件夹名（如 AppData\\Local\\Ubisoft → Ubisoft）。"
           : (bucketNote ?? "目录不在规则库或未细分类"),
         isCoarse && item.unknownGroup
           ? `粗分组 ID：${item.unknownGroup}`

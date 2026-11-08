@@ -25,7 +25,7 @@ pub fn classify_unknown_path(windows_path: &str) -> UnknownCoarseKey {
         let folder = &parts[2];
         return UnknownCoarseKey {
             id: format!("userdir-{}", slug_part(folder)),
-            label: format!("用户 \\ {folder}"),
+            label: folder.to_string(),
             bucket: "user",
             dir_hint: format!(r"C:\Users\*\{folder}\**"),
         };
@@ -38,10 +38,15 @@ pub fn classify_unknown_path(windows_path: &str) -> UnknownCoarseKey {
         } else {
             "Program Files"
         };
+        let bucket = bucket_for_program_vendor(vendor);
         return UnknownCoarseKey {
             id: format!("pf-{}", slug_part(vendor)),
-            label: format!("{vendor} · {scope}"),
-            bucket: bucket_for_program_vendor(vendor),
+            label: if bucket == "user" {
+                vendor.to_string()
+            } else {
+                format!("{vendor} · {scope}")
+            },
+            bucket,
             dir_hint: format!(r"C:\{scope}\{vendor}\**"),
         };
     }
@@ -111,10 +116,16 @@ fn appdata_group(parts: &[String], lower: &[String]) -> UnknownCoarseKey {
         "locallow" => "AppData LocalLow",
         other => other,
     };
+    let bucket = bucket_for_appdata_vendor(vendor, flavor);
+    let label = if bucket == "user" {
+        vendor.to_string()
+    } else {
+        format!("{vendor} · {flavor_label}")
+    };
     UnknownCoarseKey {
         id: format!("appdata-{flavor}-{}", slug_part(vendor)),
-        label: format!("{vendor} · {flavor_label}"),
-        bucket: bucket_for_appdata_vendor(vendor, flavor),
+        label,
+        bucket,
         dir_hint: format!(r"C:\Users\*\AppData\{flavor_win}\{vendor}\**"),
     }
 }
@@ -187,7 +198,7 @@ mod tests {
             r"C:\Users\Alice\AppData\Local\JianyingPro\User Data\Projects\foo.mp4",
         );
         assert_eq!(k.id, "appdata-local-jianyingpro");
-        assert!(k.label.contains("JianyingPro"));
+        assert_eq!(k.label, "JianyingPro");
         assert!(k.dir_hint.contains("JianyingPro"));
     }
 

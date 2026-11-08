@@ -1,8 +1,11 @@
 import { getRuleById } from "@clarity/rules";
-import type { ExplanationView } from "../data/homeModel";
+import { bucketTier, type ExplanationView } from "../data/homeModel";
+import type { UsageChoice } from "../data/usagePrefs";
+import { riskTier } from "../data/homeModel";
 
 interface ExplanationPanelProps {
   view: ExplanationView;
+  onUsageChoice?: (key: string, choice: UsageChoice) => void;
 }
 
 function riskLabel(risk: string) {
@@ -11,46 +14,106 @@ function riskLabel(risk: string) {
   return { text: "禁止直接清", cls: "risk-forbidden" };
 }
 
-export function ExplanationPanel({ view }: ExplanationPanelProps) {
+export function ExplanationPanel({
+  view,
+  onUsageChoice,
+}: ExplanationPanelProps) {
   if (view.isUnknown) {
     return (
       <aside className="explain">
         <header>
           <p className="eyebrow">
             {view.eyebrow ??
-              (view.title === "其他占用"
+              (view.title === "无权限 / 未遍历" || view.title === "其他占用"
                 ? "解释卡 · 空间差额"
-                : "解释卡 · 尚未识别")}
+                : "解释卡 · 应用/文件夹")}
           </p>
           <h2>{view.title}</h2>
           <code className="path">{view.path}</code>
         </header>
+
+        {view.usageEligible && view.usageKey && onUsageChoice && (
+          <div className="usage-choice-block">
+            <h3>还用不用这个应用/文件夹？</h3>
+            <p className="muted usage-choice-hint">
+              仅影响归类与候选项展示 · 不执行删除
+            </p>
+            <div className="usage-choice-btns">
+              <button
+                type="button"
+                className={
+                  view.usageChoice === "active" ? "ghost-btn on" : "ghost-btn"
+                }
+                onClick={() => onUsageChoice(view.usageKey!, "active")}
+              >
+                还在用
+              </button>
+              <button
+                type="button"
+                className={
+                  view.usageChoice === "unused" ? "ghost-btn on" : "ghost-btn"
+                }
+                onClick={() => onUsageChoice(view.usageKey!, "unused")}
+              >
+                不用了 / 还不用
+              </button>
+            </div>
+            {view.usageChoice === "unused" && (
+              <p className="usage-outcome">
+                已归入可瘦身候选 · 整目录视为残留（M4 再回收站）
+              </p>
+            )}
+            {view.usageChoice === "active" &&
+              (view.cacheCandidates?.length ?? 0) > 0 && (
+                <div className="cache-candidates">
+                  <h4>建议先清这些缓存（safe/confirm）</h4>
+                  <ul>
+                    {view.cacheCandidates!.map((c) => {
+                      const tier = riskTier(
+                        c.risk as "safe" | "confirm" | undefined,
+                      );
+                      return (
+                        <li key={c.id}>
+                          {c.label} · {c.sizeGb.toFixed(1)} GB{" "}
+                          <span className={`risk-pill ${tier.cls}`}>
+                            {tier.text}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+            {view.usageChoice === "active" &&
+              (view.cacheCandidates?.length ?? 0) === 0 && (
+                <p className="muted usage-outcome">
+                  暂未命中该厂商的可瘦身规则；可等待规则库扩展。
+                </p>
+              )}
+          </div>
+        )}
+
         <div className="qa">
-          {view.title === "其他占用" ? (
+          {view.title === "无权限 / 未遍历" ||
+          view.title === "其他占用" ? (
             <>
               <Question
-                q="为什么列表合计远小于 C: 已用？"
-                a="列表只统计命中约 20 条规则的文件；其余已用空间在「尚未识别」或「其他占用」中体现。"
+                q="为什么需要「顶目录归因」？"
+                a="M2.5 按 C:\\ 下 Users/Windows/Program Files 等汇总，可读文件合计应接近 C: 已用。"
               />
               <Question
-                q="其他占用是什么？"
-                a="盘已用空间减去规则命中与尚未识别后的差额，含未扫描目录、权限跳过、统计误差等。"
+                q="差额是什么？"
+                a="盘已用减去本次 walk 统计到的文件字节，主要为无权限跳过目录内的体积等。"
               />
-              <Question q="删掉会怎样？" a="M2 不提供删除；需先弄清目录来源再手动处理。" />
-              <Question q="建议怎么做？" a="查看下方调查线索；等待规则库扩展或配合资源管理器排查大目录。" />
+              <Question q="删掉会怎样？" a="M2.5 不提供删除。" />
             </>
           ) : (
             <>
-              <Question q="它是什么？" a="暂无规则匹配，不能自动归类到已知应用或用途。" />
-              <Question q="谁产生的？" a="来源未知，需结合修改时间与文件类型判断。" />
               <Question
-                q="删掉会怎样？"
-                a="风险未评估。产品策略：未知项不提供删除按钮。"
+                q="它是什么？"
+                a="用户侧占用：按路径父目录展示为厂商或文件夹名。"
               />
-              <Question
-                q="建议怎么做？"
-                a="使用调查线索核对后再决定；可等待规则库更新或手动备份后处理。"
-              />
+              <Question q="删掉会怎样？" a="未评估前不提供删除按钮。" />
             </>
           )}
         </div>
@@ -62,7 +125,7 @@ export function ExplanationPanel({ view }: ExplanationPanelProps) {
             ))}
           </ul>
         </div>
-        <p className="no-delete">无删除操作 · 仅调查模式</p>
+        <p className="no-delete">无删除操作 · 仅调查与归类</p>
       </aside>
     );
   }
@@ -77,6 +140,7 @@ export function ExplanationPanel({ view }: ExplanationPanelProps) {
   }
 
   const risk = riskLabel(r.risk);
+  const bucket = bucketTier(r.bucket);
 
   return (
     <aside className="explain">
@@ -85,6 +149,7 @@ export function ExplanationPanel({ view }: ExplanationPanelProps) {
         <h2>{view.title || r.displayName}</h2>
         <code className="path">{view.path}</code>
         <div className="meta-row">
+          <span className={`risk-pill ${bucket.cls}`}>{bucket.text}</span>
           <span className={`risk-pill ${risk.cls}`}>{risk.text}</span>
           <span className="muted">
             可信度 {(r.confidence * 100).toFixed(0)}% · {r.ownerApp}
@@ -105,16 +170,19 @@ export function ExplanationPanel({ view }: ExplanationPanelProps) {
           ))}
         </ul>
       </div>
-      {r.risk === "safe" && (
+      {r.bucket === "user" && (
+        <p className="no-delete">你的文件 · 仅识别占用 · 不提供清理</p>
+      )}
+      {r.bucket === "slim" && r.risk === "safe" && (
         <button type="button" className="ghost-btn" disabled title="M4 启用">
           预览后进回收站（M4）
         </button>
       )}
-      {r.risk === "confirm" && (
-        <p className="no-delete">需逐项确认 · M2 不执行删除</p>
+      {r.bucket === "slim" && r.risk === "confirm" && (
+        <p className="no-delete">可瘦身 · 需确认 · M2.5 不执行删除</p>
       )}
-      {r.risk === "forbidden" && (
-        <p className="no-delete">禁止一键清理 · 请按建议使用系统工具</p>
+      {r.bucket === "system" && (
+        <p className="no-delete">系统别动 · 请按建议使用系统工具</p>
       )}
     </aside>
   );

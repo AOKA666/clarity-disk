@@ -2,6 +2,7 @@ import seedRules from "../rules.seed.json";
 import type schema from "../schema.json";
 
 export type RiskLevel = "safe" | "confirm" | "forbidden";
+export type BucketKind = "user" | "slim" | "system";
 
 export interface ClarityRule {
   id: string;
@@ -10,6 +11,7 @@ export interface ClarityRule {
   ownerApp: string;
   purpose: string;
   risk: RiskLevel;
+  bucket: BucketKind;
   what: string;
   riskText: string;
   advice: string;
@@ -19,7 +21,7 @@ export interface ClarityRule {
 
 export type RuleSchema = typeof schema;
 
-/** 全部种子规则（M1 约 20 条，M3 目标 ≥100）。 */
+/** 全部种子规则（M2.5 ≥50 条）。 */
 export const rules: ClarityRule[] = seedRules as ClarityRule[];
 
 export function normalizeWindowsPath(path: string): string {
@@ -89,8 +91,14 @@ export function getRuleById(id: string): ClarityRule | undefined {
 }
 
 /** 按风险等级筛选。 */
-export function rulesByRisk(risk: RiskLevel): ClarityRule[] {
-  return rules.filter((r) => r.risk === risk);
+export function rulesByBucket(bucket: BucketKind): ClarityRule[] {
+  return rules.filter((r) => r.bucket === bucket);
+}
+
+export function bucketLabel(bucket: BucketKind): string {
+  if (bucket === "user") return "你的文件";
+  if (bucket === "slim") return "可瘦身";
+  return "系统别动";
 }
 
 export { seedRules };

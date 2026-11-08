@@ -10,6 +10,7 @@
     "ownerApp",
     "purpose",
     "risk",
+    "bucket",
     "what",
     "riskText",
     "advice",
@@ -23,6 +24,11 @@
     "ownerApp": { "type": "string" },
     "purpose": { "type": "string" },
     "risk": { "type": "string", "enum": ["safe", "confirm", "forbidden"] },
+    "bucket": {
+      "type": "string",
+      "enum": ["user", "slim", "system"],
+      "description": "user=你的文件(仅识别); slim=可瘦身; system=系统别动"
+    },
     "what": { "type": "string" },
     "riskText": { "type": "string" },
     "advice": { "type": "string" },

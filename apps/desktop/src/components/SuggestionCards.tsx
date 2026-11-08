@@ -11,7 +11,7 @@ export function SuggestionCards({ cards, onSelect }: SuggestionCardsProps) {
       <header className="panel-head">
         <div>
           <h2>值得关注</h2>
-          <p className="muted">不鼓励「清一切」— 按风险分级</p>
+          <p className="muted">三桶视图 · 你的文件 / 可瘦身 / 系统别动</p>
         </div>
       </header>
       <div className="card-grid">
@@ -19,7 +19,7 @@ export function SuggestionCards({ cards, onSelect }: SuggestionCardsProps) {
           <button
             key={card.id}
             type="button"
-            className={`s-card risk-${card.risk}`}
+            className={`s-card risk-${card.risk}${card.bucket ? ` bucket-${card.bucket}` : ""}`}
             onClick={() => onSelect(card)}
           >
             <span className="s-title">{card.title}</span>

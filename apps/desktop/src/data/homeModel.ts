@@ -1,4 +1,5 @@
-import type { RiskLevel } from "@clarity/rules";
+import type { BucketKind, RiskLevel } from "@clarity/rules";
+import type { UsageChoice } from "./usagePrefs";
 
 export type NavId =
   | "overview"
@@ -15,7 +16,11 @@ export interface SpaceItem {
   ruleId?: string;
   purpose?: string;
   risk?: RiskLevel;
+  bucket?: BucketKind;
+  unknownGroup?: string;
   isUnknown?: boolean;
+  clues?: string[];
+  eyebrow?: string;
 }
 
 export interface SuggestionCard {
@@ -24,6 +29,7 @@ export interface SuggestionCard {
   subtitle: string;
   sizeGb: number;
   risk: RiskLevel;
+  bucket?: BucketKind;
   ruleId?: string;
 }
 
@@ -34,6 +40,8 @@ export interface DiskSummary {
   freeGb: number;
   reclaimableGb: number;
   matchedGb?: number;
+  attributedGb?: number;
+  permissionGapGb?: number;
   unknownGb?: number;
   unexplainedGb?: number;
   localOnly: true;
@@ -46,6 +54,21 @@ export interface ExplanationView {
   isUnknown: boolean;
   eyebrow?: string;
   clues?: string[];
+  /** 用户侧厂商行：展示「还用不用」 */
+  usageEligible?: boolean;
+  usageKey?: string;
+  usageChoice?: UsageChoice | null;
+  cacheCandidates?: { id: string; label: string; sizeGb: number; risk?: string }[];
+}
+
+/** @deprecated 旧三视图列表；新 IA 使用 SpaceOverview 钻取 */
+export function buildSpaceListItems(
+  scan: ScanPayload,
+  _mode: "volume" | "app" | "purpose",
+): SpaceItem[] {
+  const tops = scan.byTopLevel.filter(isVisibleListRow).map(rowToSpaceItem);
+  const unknowns = scan.unknownRows.filter(isVisibleListRow).map(rowToSpaceItem);
+  return [...tops, ...unknowns];
 }
 
 export interface ScanProgressView {
@@ -63,8 +86,11 @@ export interface ScanPayload {
   bytesScanned: number;
   pathsScanned: number;
   matchedBytes: number;
+  attributedBytes: number;
+  permissionGapBytes: number;
   unexplainedBytes: number;
   skipped: { path: string; reason: string }[];
+  byTopLevel: ScanRow[];
   byApp: ScanRow[];
   byPurpose: ScanRow[];
   unknownRows: ScanRow[];
@@ -72,6 +98,11 @@ export interface ScanPayload {
     safeBytes: number;
     confirmBytes: number;
     unknownBytes: number;
+  };
+  buckets: {
+    userBytes: number;
+    slimBytes: number;
+    systemBytes: number;
   };
 }
 
@@ -83,6 +114,8 @@ export interface ScanRow {
   ruleId?: string;
   purpose?: string;
   risk?: RiskLevel;
+  bucket?: BucketKind;
+  unknownGroup?: string;
   isUnknown: boolean;
 }
 
@@ -125,21 +158,59 @@ export function riskTier(risk?: RiskLevel): {
   return { text: "待调查", cls: "risk-unknown" };
 }
 
-/** 主列表 vs 系统相关（forbidden），默认不把禁止项放进可操作主区域。 */
+export function bucketTier(bucket?: BucketKind): {
+  text: string;
+  cls: "bucket-user" | "bucket-slim" | "bucket-system" | "risk-unknown";
+} {
+  if (bucket === "user") {
+    return { text: "你的文件", cls: "bucket-user" };
+  }
+  if (bucket === "slim") {
+    return { text: "可瘦身", cls: "bucket-slim" };
+  }
+  if (bucket === "system") {
+    return { text: "系统别动", cls: "bucket-system" };
+  }
+  return { text: "待归类", cls: "risk-unknown" };
+}
+
+export type SpaceBucket = BucketKind;
+
+/** 三桶分区：你的文件 / 可瘦身 / 系统别动 */
+export function partitionByBucket(items: SpaceItem[]): {
+  user: SpaceItem[];
+  slim: SpaceItem[];
+  system: SpaceItem[];
+} {
+  const user: SpaceItem[] = [];
+  const slim: SpaceItem[] = [];
+  const system: SpaceItem[] = [];
+  for (const item of items) {
+    const b =
+      item.bucket ??
+      (item.risk === "forbidden"
+        ? "system"
+        : item.isUnknown
+          ? "user"
+          : "slim");
+    if (b === "system") {
+      system.push(item);
+    } else if (b === "slim") {
+      slim.push(item);
+    } else {
+      user.push(item);
+    }
+  }
+  return { user, slim, system };
+}
+
+/** @deprecated 保留兼容；新 UI 使用 partitionByBucket */
 export function partitionSpaceItems(items: SpaceItem[]): {
   primary: SpaceItem[];
   system: SpaceItem[];
 } {
-  const primary: SpaceItem[] = [];
-  const system: SpaceItem[] = [];
-  for (const item of items) {
-    if (!item.isUnknown && item.risk === "forbidden") {
-      system.push(item);
-    } else {
-      primary.push(item);
-    }
-  }
-  return { primary, system };
+  const { user, slim, system } = partitionByBucket(items);
+  return { primary: [...user, ...slim], system };
 }
 
 export function rowToSpaceItem(row: ScanRow): SpaceItem {
@@ -151,6 +222,8 @@ export function rowToSpaceItem(row: ScanRow): SpaceItem {
     ruleId: row.ruleId,
     purpose: row.purpose,
     risk: row.risk,
+    bucket: row.bucket,
+    unknownGroup: row.unknownGroup,
     isUnknown: row.isUnknown,
   };
 }
@@ -164,92 +237,78 @@ export function diskSummaryFromScan(scan: ScanPayload): DiskSummary {
     freeGb: bytesToGb(scan.freeBytes),
     reclaimableGb,
     matchedGb: bytesToGb(scan.matchedBytes),
+    attributedGb: bytesToGb(scan.attributedBytes),
+    permissionGapGb: bytesToGb(scan.permissionGapBytes),
     unknownGb: bytesToGb(scan.suggestions.unknownBytes),
     unexplainedGb: bytesToGb(scan.unexplainedBytes),
     localOnly: true,
   };
 }
 
-export function otherGapSpaceItem(scan: ScanPayload): SpaceItem | null {
-  if (!isVisibleListBytes(scan.unexplainedBytes)) {
+export function permissionGapSpaceItem(scan: ScanPayload): SpaceItem | null {
+  if (!isVisibleListBytes(scan.permissionGapBytes)) {
     return null;
   }
   return {
-    id: "other-unattributed",
-    label: "其他占用",
-    sizeGb: bytesToGb(scan.unexplainedBytes),
+    id: "permission-gap",
+    label: "无权限 / 未遍历",
+    sizeGb: bytesToGb(scan.permissionGapBytes),
     path: `${scan.drive}\\`,
     isUnknown: true,
-    purpose: "差额 / 未扫描",
+    bucket: "system",
+    purpose: "跳过目录内体积与元数据",
   };
 }
 
-export function buildSpaceListItems(
-  scan: ScanPayload,
-  mode: "app" | "purpose",
-): SpaceItem[] {
-  const main = (mode === "app" ? scan.byApp : scan.byPurpose)
-    .filter(isVisibleListRow)
-    .map(rowToSpaceItem);
-  const extras: SpaceItem[] = [];
-  for (const row of scan.unknownRows.filter(isVisibleListRow)) {
-    extras.push(rowToSpaceItem(row));
-  }
-  const gap = otherGapSpaceItem(scan);
-  if (gap) {
-    extras.push(gap);
-  }
-  if (main.length === 0 && extras.length > 0) {
-    return extras;
-  }
-  return [...main, ...extras];
-}
-
-export function explanationForOtherGap(scan: ScanPayload): ExplanationView {
+export function explanationForPermissionGap(scan: ScanPayload): ExplanationView {
   const used = bytesToGb(scan.usedBytes).toFixed(1);
-  const matched = bytesToGb(scan.matchedBytes).toFixed(1);
-  const unknown = bytesToGb(scan.suggestions.unknownBytes).toFixed(1);
-  const gap = bytesToGb(scan.unexplainedBytes).toFixed(1);
+  const walked = bytesToGb(scan.bytesScanned).toFixed(1);
+  const gap = bytesToGb(scan.permissionGapBytes).toFixed(1);
   return {
-    title: "其他占用",
+    title: "无权限 / 未遍历",
     path: `${scan.drive}\\`,
     isUnknown: true,
     eyebrow: "解释卡 · 空间差额",
     clues: [
       `C: 已用 ${used} GB（总容量 − 可用空间）`,
-      `规则命中合计 ${matched} GB · 尚未识别 ${unknown} GB · 差额 ${gap} GB`,
-      `本次 walk 统计 ${scan.pathsScanned.toLocaleString()} 个文件；无权限跳过 ${scan.skipped.length} 处目录`,
-      "差额常见原因：未匹配路径、跳过目录内体积、硬链接重复统计差、系统保留/元数据等",
-      "「谁占用了空间」主列表仅为规则命中聚合，不等于整盘已用空间",
-      "M2 只读 · 无删除操作",
+      `本次可读文件合计 ${walked} GB · 差额 ${gap} GB`,
+      `无权限跳过 ${scan.skipped.length} 处目录（列表见扫描完成提示）`,
+      "差额主要为：System Volume Information、其他用户/profile、被锁目录内体积等",
+      "顶级目录归因行合计应接近 C: 已用；剩余差额即此项",
+      "M2.5 只读 · 无删除操作",
     ],
   };
+}
+
+export function explanationForOtherGap(scan: ScanPayload): ExplanationView {
+  return explanationForPermissionGap(scan);
 }
 
 export function suggestionCardsFromScan(scan: ScanPayload): SuggestionCard[] {
   const cards: SuggestionCard[] = [
     {
-      id: "s-safe",
-      title: "可清理",
-      subtitle: "命中 safe 规则的文件合计（M2 只读，不进回收站）",
-      sizeGb: bytesToGb(scan.suggestions.safeBytes),
-      risk: "safe",
-      ruleId: "user-temp",
-    },
-    {
-      id: "s-confirm",
-      title: "需确认",
-      subtitle: "下载、聊天数据等 confirm 规则占用",
-      sizeGb: bytesToGb(scan.suggestions.confirmBytes),
+      id: "b-user",
+      title: "你的文件",
+      subtitle: "文档/桌面/下载/聊天等 · 仅识别占用，不提供清理",
+      sizeGb: bytesToGb(scan.buckets.userBytes),
       risk: "confirm",
-      ruleId: "downloads",
+      bucket: "user",
     },
     {
-      id: "s-investigate",
-      title: "待调查",
-      subtitle: "尚未识别 · 只提供线索、不提供删除",
-      sizeGb: bytesToGb(scan.suggestions.unknownBytes),
+      id: "b-slim",
+      title: "可瘦身",
+      subtitle: "可重建缓存与安装残留 · M4 才进回收站",
+      sizeGb: bytesToGb(scan.buckets.slimBytes),
+      risk: "safe",
+      bucket: "slim",
+    },
+    {
+      id: "b-system",
+      title: "系统别动",
+      subtitle: "WinSxS / 页面文件 / 无权限差额等",
+      sizeGb: bytesToGb(scan.buckets.systemBytes),
       risk: "forbidden",
+      bucket: "system",
     },
   ];
   return cards.filter((c) => isVisibleListBytes(c.sizeGb * 1024 ** 3));
@@ -259,19 +318,52 @@ export function explanationForItem(
   item: SpaceItem,
   scan?: ScanPayload | null,
 ): ExplanationView {
-  if (item.id === "other-unattributed" && scan) {
-    return explanationForOtherGap(scan);
-  }
-  if (item.isUnknown || !item.ruleId) {
+  if (item.clues?.length) {
     return {
       title: item.label,
       path: item.path,
       isUnknown: true,
+      eyebrow: item.eyebrow,
+      clues: item.clues,
+    };
+  }
+  if (
+    (item.id === "permission-gap" || item.id === "vol-permission-gap") &&
+    scan
+  ) {
+    return explanationForPermissionGap(scan);
+  }
+  if (item.isUnknown || !item.ruleId) {
+    const isCoarse = Boolean(
+      item.unknownGroup ||
+        item.id.startsWith("unknown-") ||
+        item.id.startsWith("vendor-"),
+    );
+    const bucketNote =
+      item.bucket === "user"
+        ? "归入「你的文件」桶 · 不提供清理按钮"
+        : item.bucket === "slim"
+          ? "归入「可瘦身」桶 · M2.5 仍不执行删除"
+          : item.bucket === "system"
+            ? "归入「系统别动」桶 · 仅调查"
+            : undefined;
+    return {
+      title: item.label,
+      path: item.path,
+      isUnknown: true,
+      eyebrow: isCoarse ? "解释卡 · 应用/文件夹" : undefined,
       clues: [
-        "目录不在规则库中",
+        isCoarse
+          ? "按路径父目录归并显示为厂商或文件夹名（如 AppData\\Local\\Ubisoft → Ubisoft）。"
+          : (bucketNote ?? "目录不在规则库或未细分类"),
+        isCoarse && item.unknownGroup
+          ? `粗分组 ID：${item.unknownGroup}`
+          : null,
+        item.purpose ? `典型路径：${item.purpose}` : null,
         `体积约 ${item.sizeGb.toFixed(1)} GB`,
-        "产品策略：未知项不提供删除按钮",
-      ],
+        bucketNote && isCoarse ? bucketNote : null,
+        "产品策略：尚未识别项不提供删除",
+      ].filter(Boolean) as string[],
     };
   }
   return {
@@ -292,35 +384,8 @@ export const mockDiskSummary: DiskSummary = {
   localOnly: true,
 };
 
-export const mockByApp: SpaceItem[] = [
-  {
-    id: "wechat",
-    label: "微信",
-    sizeGb: 48.2,
-    path: "C:\\Users\\Demo\\Documents\\WeChat Files",
-    ruleId: "wechat-files",
-    purpose: "聊天与文件",
-  },
-];
+export const mockByApp: SpaceItem[] = [];
 
-export const mockByPurpose: SpaceItem[] = [
-  {
-    id: "p-cache",
-    label: "应用缓存",
-    sizeGb: 41.2,
-    path: "C:\\Users\\Demo\\AppData\\Local\\Temp",
-    ruleId: "user-temp",
-    purpose: "缓存",
-  },
-];
+export const mockByPurpose: SpaceItem[] = [];
 
-export const mockSuggestionCards: SuggestionCard[] = [
-  {
-    id: "s-safe",
-    title: "可清理",
-    subtitle: "过期缓存与 Temp，预览后进回收站",
-    sizeGb: 11.8,
-    risk: "safe",
-    ruleId: "user-temp",
-  },
-];
+export const mockSuggestionCards: SuggestionCard[] = [];

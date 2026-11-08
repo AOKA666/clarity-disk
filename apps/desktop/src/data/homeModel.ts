@@ -18,6 +18,8 @@ export interface SpaceItem {
   bucket?: BucketKind;
   unknownGroup?: string;
   isUnknown?: boolean;
+  clues?: string[];
+  eyebrow?: string;
 }
 
 export interface SuggestionCard {
@@ -51,6 +53,16 @@ export interface ExplanationView {
   isUnknown: boolean;
   eyebrow?: string;
   clues?: string[];
+}
+
+/** @deprecated 旧三视图列表；新 IA 使用 SpaceOverview 钻取 */
+export function buildSpaceListItems(
+  scan: ScanPayload,
+  _mode: "volume" | "app" | "purpose",
+): SpaceItem[] {
+  const tops = scan.byTopLevel.filter(isVisibleListRow).map(rowToSpaceItem);
+  const unknowns = scan.unknownRows.filter(isVisibleListRow).map(rowToSpaceItem);
+  return [...tops, ...unknowns];
 }
 
 export interface ScanProgressView {
@@ -242,38 +254,6 @@ export function permissionGapSpaceItem(scan: ScanPayload): SpaceItem | null {
   };
 }
 
-export function buildSpaceListItems(
-  scan: ScanPayload,
-  mode: "volume" | "app" | "purpose",
-): SpaceItem[] {
-  const source =
-    mode === "volume"
-      ? scan.byTopLevel
-      : mode === "app"
-        ? scan.byApp
-        : scan.byPurpose;
-
-  const main = source.filter(isVisibleListRow).map(rowToSpaceItem);
-
-  const unknownItems = scan.unknownRows
-    .filter(isVisibleListRow)
-    .map(rowToSpaceItem);
-
-  if (mode === "volume") {
-    return [...main, ...unknownItems];
-  }
-
-  const extras: SpaceItem[] = [...unknownItems];
-  const gap = permissionGapSpaceItem(scan);
-  if (gap) {
-    extras.push(gap);
-  }
-  if (main.length === 0 && extras.length > 0) {
-    return extras;
-  }
-  return [...main, ...extras];
-}
-
 export function explanationForPermissionGap(scan: ScanPayload): ExplanationView {
   const used = bytesToGb(scan.usedBytes).toFixed(1);
   const walked = bytesToGb(scan.bytesScanned).toFixed(1);
@@ -332,6 +312,15 @@ export function explanationForItem(
   item: SpaceItem,
   scan?: ScanPayload | null,
 ): ExplanationView {
+  if (item.clues?.length) {
+    return {
+      title: item.label,
+      path: item.path,
+      isUnknown: true,
+      eyebrow: item.eyebrow,
+      clues: item.clues,
+    };
+  }
   if (
     (item.id === "permission-gap" || item.id === "vol-permission-gap") &&
     scan

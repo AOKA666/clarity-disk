@@ -1,32 +1,42 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { CapacityRing } from "./components/CapacityRing";
 import { ExplanationPanel } from "./components/ExplanationPanel";
 import { Sidebar } from "./components/Sidebar";
-import { SpaceList, type GroupMode } from "./components/SpaceList";
-import { SuggestionCards } from "./components/SuggestionCards";
 import {
-  buildSpaceListItems,
+  SpaceOverview,
+  type OverviewScreen,
+  buildSlimDrillItems,
+  buildSystemDrillItems,
+  buildUserPersonalItems,
+  explanationForHomeBlock,
+} from "./components/SpaceOverview";
+import {
   diskSummaryFromScan,
   explanationForItem,
-  explanationForPermissionGap,
   mockDiskSummary,
-  rowToSpaceItem,
-  suggestionCardsFromScan,
   type NavId,
   type ScanPayload,
   type ScanProgressView,
   type SpaceItem,
-  type SuggestionCard,
 } from "./data/homeModel";
 import "./App.css";
 
 type ScanPhase = "idle" | "scanning" | "done" | "error";
 
+function drillItems(scan: ScanPayload, screen: OverviewScreen): SpaceItem[] {
+  if (screen === "drill-system") return buildSystemDrillItems(scan);
+  if (screen === "drill-slim") return buildSlimDrillItems(scan);
+  if (screen === "drill-user") {
+    return [...buildUserPersonalItems(scan), ...buildSlimDrillItems(scan)];
+  }
+  return [];
+}
+
 function App() {
   const [nav, setNav] = useState<NavId>("overview");
-  const [mode, setMode] = useState<GroupMode>("volume");
+  const [screen, setScreen] = useState<OverviewScreen>("home");
   const [phase, setPhase] = useState<ScanPhase>("idle");
   const [scanError, setScanError] = useState("");
   const [progress, setProgress] = useState<ScanProgressView | null>(null);
@@ -39,24 +49,6 @@ function App() {
     ? diskSummaryFromScan(scanResult)
     : mockDiskSummary;
 
-  const byApp = useMemo(
-    () => (scanResult ? scanResult.byApp.map(rowToSpaceItem) : []),
-    [scanResult],
-  );
-  const byPurpose = useMemo(
-    () => (scanResult ? scanResult.byPurpose.map(rowToSpaceItem) : []),
-    [scanResult],
-  );
-
-  const items = useMemo(() => {
-    if (!scanResult) return [];
-    return buildSpaceListItems(scanResult, mode);
-  }, [scanResult, mode]);
-
-  const suggestionCards = scanResult
-    ? suggestionCardsFromScan(scanResult)
-    : [];
-
   const [selectedId, setSelectedId] = useState("");
   const [explainView, setExplainView] = useState(() =>
     explanationForItem({
@@ -67,10 +59,6 @@ function App() {
       isUnknown: true,
     }),
   );
-  const selectedItem = useMemo(
-    () => items.find((i) => i.id === selectedId) ?? items[0],
-    [items, selectedId],
-  );
 
   const selectItem = useCallback(
     (item: SpaceItem) => {
@@ -80,12 +68,37 @@ function App() {
     [scanResult],
   );
 
-  const selectFirstInMode = useCallback(
-    (nextMode: GroupMode) => {
+  const onNavigate = useCallback(
+    (next: OverviewScreen) => {
+      setScreen(next);
       if (!scanResult) return;
-      const list = buildSpaceListItems(scanResult, nextMode);
-      if (list[0]) {
-        selectItem(list[0]);
+      if (next === "home") {
+        setSelectedId("");
+        setExplainView(
+          explanationForItem({
+            id: "home-hint",
+            label: "谁占用了空间",
+            sizeGb: 0,
+            path: `${scanResult.drive}\\`,
+            isUnknown: true,
+            clues: [
+              "点选「系统文件」或「用户文件」查看分项",
+              "「可瘦身汇总」直达可清理候选",
+              "M2.5 只读 · 无删除",
+            ],
+          }),
+        );
+        return;
+      }
+      const items = drillItems(scanResult, next);
+      if (items[0]) {
+        selectItem(items[0]);
+      } else if (next === "drill-system") {
+        setExplainView(explanationForHomeBlock("system", scanResult));
+      } else if (next === "drill-user") {
+        setExplainView(explanationForHomeBlock("user", scanResult));
+      } else {
+        setExplainView(explanationForHomeBlock("slim", scanResult));
       }
     },
     [scanResult, selectItem],
@@ -93,8 +106,23 @@ function App() {
 
   useEffect(() => {
     if (!scanResult) return;
-    selectFirstInMode(mode);
-  }, [scanResult, selectFirstInMode]);
+    setScreen("home");
+    setSelectedId("");
+    setExplainView(
+      explanationForItem({
+        id: "home-hint",
+        label: "谁占用了空间",
+        sizeGb: diskSummaryFromScan(scanResult).usedGb,
+        path: `${scanResult.drive}\\`,
+        isUnknown: true,
+        clues: [
+          `C: 已用约 ${diskSummaryFromScan(scanResult).usedGb.toFixed(1)} GB`,
+          "首页仅「系统文件」「用户文件」两大块 + 可瘦身汇总",
+          "点进用户文件可分别查看个人占用与可清理候选",
+        ],
+      }),
+    );
+  }, [scanResult]);
 
   useEffect(() => {
     invoke<string>("scanner_status")
@@ -108,6 +136,7 @@ function App() {
     if (clearPrevious) {
       setScanResult(null);
       setSelectedId("");
+      setScreen("home");
       setProgress(null);
       setScanError("");
     }
@@ -147,37 +176,6 @@ function App() {
       unlistenProgressRef.current = null;
     };
   }, [runScan]);
-
-  const onSelectItem = (item: SpaceItem) => {
-    selectItem(item);
-  };
-
-  const onSelectSuggestion = (card: SuggestionCard) => {
-    if (card.ruleId) {
-      const match =
-        byApp.find((i) => i.ruleId === card.ruleId) ??
-        byPurpose.find((i) => i.ruleId === card.ruleId);
-      if (match) {
-        onSelectItem(match);
-        return;
-      }
-    }
-    const unknown = scanResult?.unknownRows.map(rowToSpaceItem)[0];
-    if (unknown) {
-      onSelectItem(unknown);
-      return;
-    }
-    if (scanResult && scanResult.permissionGapBytes > 0) {
-      setExplainView(explanationForPermissionGap(scanResult));
-      return;
-    }
-    setExplainView({
-      title: card.title,
-      path: "C:\\",
-      isUnknown: true,
-      clues: ["尚未识别空间", `约 ${card.sizeGb.toFixed(1)} GB`],
-    });
-  };
 
   const rescan = () => {
     void runScan(true);
@@ -238,22 +236,13 @@ function App() {
               scanning={phase === "scanning"}
               scanLabel={progressLabel}
             />
-            <SpaceList
-              mode={mode}
-              items={items}
-              selectedId={selectedItem?.id ?? ""}
-              onSelect={onSelectItem}
-              onModeChange={(m) => {
-                setMode(m);
-                selectFirstInMode(m);
-              }}
+            <SpaceOverview
+              scan={scanResult}
+              screen={screen}
+              selectedId={selectedId}
+              onSelect={selectItem}
+              onNavigate={onNavigate}
             />
-            {suggestionCards.length > 0 && (
-              <SuggestionCards
-                cards={suggestionCards}
-                onSelect={onSelectSuggestion}
-              />
-            )}
           </div>
           <ExplanationPanel view={explainView} />
         </div>
